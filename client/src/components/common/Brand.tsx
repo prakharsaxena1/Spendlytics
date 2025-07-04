@@ -1,8 +1,8 @@
 import React from "react";
 import { Stack, Typography } from "@mui/material";
 
-const Brand: React.FC = () => (
-  <div draggable>
+const Brand: React.FC<{ hide?: boolean }> = ({ hide }) => (
+  <div draggable style={{ visibility: hide ? "hidden" : "visible" }}>
     <Stack p={1} direction="row" justifyContent="center">
       <Typography variant="h5" letterSpacing={1.1}>
         Spend

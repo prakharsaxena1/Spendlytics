@@ -111,10 +111,10 @@ const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
             }),
           }}
         >
-          <Stack direction="row" spacing={2} justifyContent="space-between">
+          <Stack direction="row" justifyContent="space-between">
             <Box
               onClick={column.getToggleSortingHandler()}
-              sx={{ p: "6px 16px" }}
+              sx={{ p: "6px 16px", flexGrow: 1 }}
             >
               <Stack
                 direction="row"
@@ -123,9 +123,9 @@ const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
               >
                 {flexRender(column.columnDef.header, getContext())}
                 {sorting?.[0]?.id !== id ? null : sorting[0].desc ? (
-                  <ArrowDownwardIcon />
+                  <ArrowDownwardIcon fontSize="small" />
                 ) : (
-                  <ArrowUpwardIcon />
+                  <ArrowUpwardIcon fontSize="small" />
                 )}
               </Stack>
             </Box>

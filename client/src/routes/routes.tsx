@@ -20,6 +20,17 @@ const routes: RouteObject[] = [
       {
         path: "/",
         element: <LandingPage />,
+        loader: async () => {
+          try {
+            const user = await store
+              .dispatch(AuthApis.endpoints.getCurrentUser.initiate())
+              .unwrap();
+            if (!user) return redirect("/");
+            return null;
+          } catch {
+            return redirect("/");
+          }
+        },
       },
       {
         path: "/account",
@@ -30,7 +41,9 @@ const routes: RouteObject[] = [
         element: <Layout />,
         loader: async () => {
           try {
-            const user = await store.dispatch(AuthApis.endpoints.getCurrentUser.initiate()).unwrap();
+            const user = await store
+              .dispatch(AuthApis.endpoints.getCurrentUser.initiate())
+              .unwrap();
             if (!user) return redirect("/account?tab=login");
             return null;
           } catch {

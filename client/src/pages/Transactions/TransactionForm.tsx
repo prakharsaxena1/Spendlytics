@@ -58,7 +58,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       amount: Number(amount),
       transactionDate: transactionDate,
       note,
-      userId: user._id,
     };
 
     if (transaction !== undefined) {

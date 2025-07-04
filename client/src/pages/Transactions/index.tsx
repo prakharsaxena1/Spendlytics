@@ -30,9 +30,7 @@ const Transactions: React.FC = () => {
 
   useEffect(() => {
     if (user !== null) {
-      transactionListTrigger({
-        userId: user._id,
-      });
+      transactionListTrigger(null);
     }
   }, [transactionListTrigger, user]);
 

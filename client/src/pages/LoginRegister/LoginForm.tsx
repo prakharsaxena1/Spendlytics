@@ -12,7 +12,7 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [loginTrigger] = AuthApis.useLoginMutation();
+  const [loginTrigger, { isLoading }] = AuthApis.useLoginMutation();
 
   const gotoRegister = () => {
     navigate("/account?tab=register");
@@ -82,7 +82,7 @@ const LoginForm: React.FC = () => {
           type="password"
           placeholder="****"
         />
-        <Button variant="contained" onClick={handleLogin}>
+        <Button variant="contained" onClick={handleLogin} disabled={isLoading}>
           Login
         </Button>
       </Stack>

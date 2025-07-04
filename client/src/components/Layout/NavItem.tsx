@@ -9,9 +9,10 @@ type NavItemProps = {
   path: string;
   navName: string;
   icon: React.ReactNode;
+  isCollapsed?: boolean;
 };
 
-const NavItem: React.FC<NavItemProps> = ({ path, icon, navName }) => {
+const NavItem: React.FC<NavItemProps> = ({ path, icon, navName, isCollapsed = false }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isHighlighted = location.pathname.includes(path);
@@ -32,7 +33,7 @@ const NavItem: React.FC<NavItemProps> = ({ path, icon, navName }) => {
       >
         <Stack direction="row" spacing={1} alignItems="center">
           {icon}
-          <Typography fontWeight={600}>{navName}</Typography>
+          <Typography fontWeight={600}>{isCollapsed ? '' : navName}</Typography>
         </Stack>
       </ListItemButton>
     </ListItem>

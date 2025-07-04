@@ -7,7 +7,7 @@ import { useAppSelector } from "../../redux/hooks";
 import { capitalize } from "@mui/material";
 import { CurrentUserSelector } from "../../redux/slices/auth/selector";
 
-const UserDetailsBox: React.FC = () => {
+const UserDetailsBox: React.FC<{ isCollapsed: boolean }> = ({ isCollapsed }) => {
   const user = useAppSelector(CurrentUserSelector);
 
   if (user === null) {
@@ -25,7 +25,7 @@ const UserDetailsBox: React.FC = () => {
             borderRadius: "100%",
           }}
         />
-        <Stack>
+        <Stack sx={{ visibility: isCollapsed ? 'hidden' : 'visible' }}>
           <Typography variant="body1" fontWeight={600}>
             {capitalize(user?.firstname)} {capitalize(user?.lastname)}
           </Typography>

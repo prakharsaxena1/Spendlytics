@@ -15,7 +15,9 @@ import {
 import { SlideUpTransition } from "../../../common/SlideupDialog";
 import AddTransactionDialog from "../../../../pages/Transactions/AddTransactionDialog";
 
-const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({ row }) => {
+const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({
+  row,
+}) => {
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
@@ -38,7 +40,6 @@ const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({ row }) => 
   const handleDeleteTransaction = () => {
     deleteTrigger({
       transactionId: row._id,
-      userId: row.userId,
     });
   };
   return (

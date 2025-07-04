@@ -71,6 +71,7 @@ export const registerUser = async (
       message: "User registered successfully",
       user: sanitizeUser(newUser),
     });
+    return;
   } catch (error) {
     console.error("Registration error:", error);
     next(error);
@@ -128,6 +129,7 @@ export const loginUser = async (
       message: "User logged in successfully",
       user: sanitizeUser(existingUser),
     });
+    return;
   } catch (error) {
     console.error("Registration error:", error);
     next(error);
