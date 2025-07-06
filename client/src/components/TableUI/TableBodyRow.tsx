@@ -7,7 +7,7 @@ type TableBodyRowProps = {
   row: Row<TransactionItemType>
 };
 
-const TableBodyRow: React.FC<TableBodyRowProps> = ({ row }) => {
+const TableBodyRow: React.FC<TableBodyRowProps> = React.memo(({ row }) => {
   return (
     <TableRow>
       {row.getVisibleCells().map(({ id, column, getContext }) => (
@@ -17,6 +17,6 @@ const TableBodyRow: React.FC<TableBodyRowProps> = ({ row }) => {
       ))}
     </TableRow>
   );
-};
+});
 
 export default TableBodyRow

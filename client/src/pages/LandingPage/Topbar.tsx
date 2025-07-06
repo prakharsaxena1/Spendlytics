@@ -31,7 +31,7 @@ const AccountBtn = styled(Button)({
 
 const Topbar: React.FC<TopbarProps> = ({ featuresRef, howItWorksRef }) => {
   const navigate = useNavigate();
-  const { isAuthenticated } = useAppSelector(AuthSelector);
+  const { isAuthenticated, isLoading } = useAppSelector(AuthSelector);
 
   const [openDrawer, setOpenDrawer] = React.useState(false);
 
@@ -105,7 +105,7 @@ const Topbar: React.FC<TopbarProps> = ({ featuresRef, howItWorksRef }) => {
             </Button>
           </Stack>
           {/* loggedin menus */}
-          <Box sx={{ width: 200, display: { xs: "none", md: "flex" } }}>
+          <Box sx={{ width: 200, display: { xs: "none", md: "flex" }, visibility: isLoading ? 'hidden' : 'visible' }}>
             {isAuthenticated ? (
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Button

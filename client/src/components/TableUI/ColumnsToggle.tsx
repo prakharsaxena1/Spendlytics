@@ -43,7 +43,7 @@ const ColumnsToggle = <T,>({
                   onChange={column.getToggleVisibilityHandler()}
                 />
               }
-              label={column.columnDef.header as string}
+              label={column.columnDef.id}
             />
           ))}
         </FormGroup>

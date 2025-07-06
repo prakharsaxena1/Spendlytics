@@ -77,16 +77,6 @@ const Sidebar = () => {
 
   return (
     <StyledDrawer variant="permanent" anchor="left" collapsed={collapsed}>
-      {/* collapse/expand toggle */}
-      <IconButton
-        onClick={handleToggle}
-        sx={{
-          m: 1,
-          alignSelf: collapsed ? "center" : "flex-end",
-        }}
-      >
-        {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
-      </IconButton>
       <Brand hide={collapsed} />
       <List sx={{ flexGrow: 1 }}>
         <NavItem
@@ -136,6 +126,16 @@ const Sidebar = () => {
           </ListItemButton>
         </ListItem>
       </List>
+            {/* collapse/expand toggle */}
+      <IconButton
+        onClick={handleToggle}
+        sx={{
+          m: 1,
+          alignSelf: collapsed ? "center" : "flex-end",
+        }}
+      >
+        {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+      </IconButton>
       <UserDetailsBox isCollapsed={collapsed} />
 
       <SlideupDialog

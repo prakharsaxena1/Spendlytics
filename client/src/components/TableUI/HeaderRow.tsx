@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import TableCell from "@mui/material/TableCell";
@@ -40,11 +40,7 @@ function Filter({ column }: { column: Column<TransactionItemType, unknown> }) {
   const open = Boolean(anchorEl);
 
   const columnFilterValue = column.getFilterValue();
-  const sortedUniqueValues = useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    [column]
-  );
-
+  const sortedUniqueValues = Array.from(column.getFacetedUniqueValues().keys()).sort()
   return (
     <>
       <IconButton onClick={handleClick} size="small">
@@ -89,7 +85,7 @@ function Filter({ column }: { column: Column<TransactionItemType, unknown> }) {
   );
 }
 
-const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
+const HeaderRow: React.FC<HeaderRowProps> = React.memo(({ headers, sorting }) => {
   return (
     <TableRow>
       {headers.map(({ column, id, getContext }) => (
@@ -137,6 +133,6 @@ const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
       ))}
     </TableRow>
   );
-};
+});
 
 export default HeaderRow;

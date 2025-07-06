@@ -44,7 +44,7 @@ app.use(/.*/, (req: Request, res: Response) => {
 });
 
 // Error handling middleware
-app.use((err, _req: Request, res: Response) => {
+app.use((err: Error, _req: Request, res: Response) => {
   console.log(err);
   res.status(500).json({ message: "Oops! Something went wrong." });
 });
