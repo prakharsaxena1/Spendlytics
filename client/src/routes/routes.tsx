@@ -1,4 +1,4 @@
-import { Navigate, type RouteObject } from "react-router-dom";
+import { Navigate, redirect, type RouteObject } from "react-router-dom";
 import Layout from "../components/Layout";
 import ErrorElement from "../pages/Errors/ErrorElement";
 import LandingPage from "../pages/LandingPage";
@@ -9,6 +9,9 @@ import Account from "../pages/Account";
 import Settings from "../pages/Settings";
 import LoginRegister from "../pages/LoginRegister";
 import SharedGroups from "../pages/SharedGroups";
+import { AuthApis } from "../redux/services/auth";
+import { store } from "../redux/store";
+import Friends from "../pages/Friends";
 
 const routes: RouteObject[] = [
   {
@@ -26,17 +29,17 @@ const routes: RouteObject[] = [
       {
         path: "/app",
         element: <Layout />,
-        // loader: async () => {
-        //   try {
-        //     const user = await store
-        //       .dispatch(AuthApis.endpoints.getCurrentUser.initiate())
-        //       .unwrap();
-        //     if (!user) return redirect("/account?tab=login");
-        //     return null;
-        //   } catch {
-        //     return redirect("/account?tab=login");
-        //   }
-        // },
+        loader: async () => {
+          try {
+            const user = await store
+              .dispatch(AuthApis.endpoints.getCurrentUser.initiate())
+              .unwrap();
+            if (!user) return redirect("/account?tab=login");
+            return null;
+          } catch {
+            return redirect("/account?tab=login");
+          }
+        },
         children: [
           {
             index: true,
@@ -65,6 +68,10 @@ const routes: RouteObject[] = [
           {
             path: "/app/account",
             element: <Account />,
+          },
+          {
+            path: "/app/friends",
+            element: <Friends />,
           },
         ],
       },

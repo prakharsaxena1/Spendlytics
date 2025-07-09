@@ -1,9 +1,9 @@
 import React from "react";
 import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ProtectedRoute from "../Auth/ProtectedRoute";
+import NavTopbar from "./NavTopbar";
 // import CssBaseline from "@mui/material/CssBaseline";
 // import { ThemeProvider } from "@mui/material";
 // import theme from "./themes/default";
@@ -11,14 +11,15 @@ import ProtectedRoute from "../Auth/ProtectedRoute";
 const Layout: React.FC = () => {
   return (
     <ProtectedRoute>
-      <Box sx={{ height: "100vh" }}>
-        <Stack direction="row" height="100%">
+      <Stack direction="column" sx={{ height: "100vh" }}>
+        <NavTopbar />
+        <Stack direction="row" flexGrow={1} sx={{ overflow: "hidden" }}>
           <Sidebar />
-          <Stack direction="column" flexGrow={1} sx={{ overflow: "hidden" }}>
+          <Stack flexGrow={1} sx={{ overflow: "auto" }}>
             <Outlet />
           </Stack>
         </Stack>
-      </Box>
+      </Stack>
     </ProtectedRoute>
   );
 };

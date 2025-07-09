@@ -6,11 +6,15 @@ import Howitworks from "./sections/Howitworks";
 import Features from "./sections/Features";
 import Footer from "./sections/Footer";
 import { AuthApis } from "../../redux/services/auth";
+import Loader from "../../components/common/Loader";
 
 const LandingPage: React.FC = () => {
   const featuresRef = useRef(null);
   const howItWorksRef = useRef(null);
-  AuthApis.useGetCurrentUserQuery();
+  const {isLoading} = AuthApis.useGetCurrentUserQuery();
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <Box>

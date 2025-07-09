@@ -4,15 +4,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import type { UpdateTransactionRequest } from "../../../../redux/services/transaction/types";
 import TransactionApis from "../../../../redux/services/transaction/api";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-} from "@mui/material";
-import { SlideUpTransition } from "../../../common/SlideupDialog";
+import { DialogActions, Button } from "@mui/material";
+import SlideupDialog from "../../../common/SlideupDialog";
 import AddTransactionDialog from "../../../../pages/Transactions/AddTransactionDialog";
 
 const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({
@@ -57,20 +50,12 @@ const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({
         transaction={row}
       />
 
-      <Dialog
-        slots={{
-          transition: SlideUpTransition,
-        }}
+      <SlideupDialog
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction? This action cannot be undone."
         open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
+        handleClose={handleCloseDeleteDialog}
       >
-        <DialogTitle>Delete Transaction</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this transaction? This action cannot
-            be undone.
-          </DialogContentText>
-        </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog} variant="outlined">
             Cancel
@@ -83,7 +68,7 @@ const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({
             Delete
           </Button>
         </DialogActions>
-      </Dialog>
+      </SlideupDialog>
     </Stack>
   );
 };

@@ -1,30 +1,13 @@
 import React from "react";
-import Button from "@mui/material/Button";
-import DialogActions from "@mui/material/DialogActions";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import Brand from "../common/Brand";
 import NavItem from "./NavItem";
-import Settings from "@mui/icons-material/Settings";
-import Logout from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import SlideupDialog from "../common/SlideupDialog";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PaidIcon from "@mui/icons-material/Paid";
 import PieChart from "@mui/icons-material/PieChart";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import { useNavigate } from "react-router-dom";
-import UserDetailsBox from "./UserDetailsBox";
-import { useAppDispatch } from "../../redux/hooks";
-import { logout } from "../../redux/slices/auth/slice";
-import { AuthApis } from "../../redux/services/auth";
-import { changeTheme } from "../../redux/slices/appConfig/slice";
 import { IconButton, styled } from "@mui/material";
 
 const DRAWER_WIDTH = 220;
@@ -37,7 +20,9 @@ const StyledDrawer = styled(Drawer, {
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
+  willChange: "auto",
   "& .MuiDrawer-paper": {
+    boxSizing: "border-box",
     width: collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
     overflowX: "hidden",
     transition: theme.transitions.create("width", {
@@ -45,39 +30,16 @@ const StyledDrawer = styled(Drawer, {
       duration: theme.transitions.duration.standard,
     }),
     bgcolor: "#F2F7FF",
+    position: "relative", // Add this
+    zIndex: 1100,
   },
 }));
 
 const Sidebar = () => {
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const [logoutTrigger] = AuthApis.useLogoutMutation();
-
   const [collapsed, setCollapsed] = React.useState(false);
-  const [logutDialogOpen, setLogutDialogOpen] = React.useState(false);
-
-  const handleLogutDialogOpen = () => {
-    setLogutDialogOpen(true);
-  };
-
-  const handleLogutDialogClose = () => {
-    setLogutDialogOpen(false);
-  };
   const handleToggle = () => setCollapsed((prev) => !prev);
-
-  const handleUserLogout = () => {
-    logoutTrigger(null)
-      .unwrap()
-      .then(() => {
-        dispatch(logout());
-        dispatch(changeTheme("light"));
-        navigate("/");
-      });
-  };
-
   return (
-    <StyledDrawer variant="permanent" anchor="left" collapsed={collapsed}>
-      <Brand hide={collapsed} />
+    <StyledDrawer variant="permanent" collapsed={collapsed}>
       <List sx={{ flexGrow: 1 }}>
         <NavItem
           path="dashboard"
@@ -104,29 +66,12 @@ const Sidebar = () => {
           isCollapsed={collapsed}
         />
         <NavItem
-          path="account"
-          icon={<PersonIcon />}
-          navName="Account"
+          path="friends"
+          icon={<GroupsIcon />}
+          navName="Friends"
           isCollapsed={collapsed}
         />
-        <NavItem
-          path="settings"
-          icon={<Settings />}
-          navName="Settings"
-          isCollapsed={collapsed}
-        />
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleLogutDialogOpen}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Logout />
-              <Typography fontWeight={600}>
-                {collapsed ? "" : "Logout"}
-              </Typography>
-            </Stack>
-          </ListItemButton>
-        </ListItem>
       </List>
-            {/* collapse/expand toggle */}
       <IconButton
         onClick={handleToggle}
         sx={{
@@ -136,23 +81,6 @@ const Sidebar = () => {
       >
         {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
       </IconButton>
-      <UserDetailsBox isCollapsed={collapsed} />
-
-      <SlideupDialog
-        title="Logout"
-        message="Are you sure you want to logout?"
-        open={logutDialogOpen}
-        handleClose={handleLogutDialogClose}
-      >
-        <DialogActions>
-          <Button color="inherit" onClick={handleLogutDialogClose}>
-            No
-          </Button>
-          <Button color="inherit" onClick={handleUserLogout}>
-            Yes
-          </Button>
-        </DialogActions>
-      </SlideupDialog>
     </StyledDrawer>
   );
 };

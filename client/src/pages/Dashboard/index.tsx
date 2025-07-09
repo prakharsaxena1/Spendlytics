@@ -86,7 +86,7 @@ const Dashboard: React.FC = () => {
 
   const financialData = useMemo(
     () => ({
-      currentBalance: 12500.75,
+      currentBalance: 52023500.75,
       startingBalance: 10000.0,
       netPosition: 3500.25,
       availableToBudget: 2500.5,
@@ -110,14 +110,9 @@ const Dashboard: React.FC = () => {
   const progress = (points / (points + pointsToNextLevel)) * 100;
 
   return (
-    <Box sx={{ flexGrow: 1, p: 2, overflow: "auto" }}>
+    <Box sx={{ flexGrow: 1, p: 1.5, overflow: "auto" }}>
       <Grid container mb={2} spacing={1}>
-        <Grid size={{ xs: 12, lg: 3 }}>
-          <Typography variant="h4" component="h1" fontWeight="bold">
-            Dashboard
-          </Typography>
-        </Grid>
-        <Grid size={{ xs: 12, lg: 9 }}>
+        <Grid size={{ xs: 12 }}>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
             <Stack
               direction="row"

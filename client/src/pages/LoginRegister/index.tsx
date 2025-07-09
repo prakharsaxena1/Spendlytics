@@ -1,20 +1,13 @@
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import { styled } from "@mui/material";
 import LoginForm from "./LoginForm";
 import RegisterForm from "./RegisterForm";
 import { useEffect } from "react";
 import { Flip, ToastContainer } from "react-toastify";
 import SVGImg from "../../components/common/SVGImg";
 import SlideTab from "./SlideTab";
-
-const SlideTabBox = styled(Stack)({
-  flexGrow: 1,
-  overflow: "hidden",
-  justifyContent: "center",
-  position: "relative",
-});
+import { SlideTabBox } from "./styles";
 
 const LoginRegister = () => {
   const navigate = useNavigate();
