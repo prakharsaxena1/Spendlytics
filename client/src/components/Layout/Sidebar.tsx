@@ -65,12 +65,6 @@ const Sidebar = () => {
           navName="Money Plans"
           isCollapsed={collapsed}
         />
-        <NavItem
-          path="friends"
-          icon={<GroupsIcon />}
-          navName="Friends"
-          isCollapsed={collapsed}
-        />
       </List>
       <IconButton
         onClick={handleToggle}

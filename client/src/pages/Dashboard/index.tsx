@@ -10,12 +10,7 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import {
-  AccountBalance,
-  Group,
-  PieChart,
-  TrendingUp,
-} from "@mui/icons-material";
+import { Group, PieChart, TrendingUp } from "@mui/icons-material";
 import ChartCard from "./ChartCard";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -26,7 +21,7 @@ const GridItemCard: React.FC<{ children: React.JSX.Element }> = ({
   children,
 }) => {
   return (
-    <Grid size={{ xs: 12, sm: 12, md: 6, lg: 3 }}>
+    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4 }}>
       <Box component={Paper} elevation={3} height="100%">
         {children}
       </Box>
@@ -157,22 +152,6 @@ const Dashboard: React.FC = () => {
           <GridItemCard>
             <Box sx={{ p: 2 }}>
               <Stack direction="row" alignItems="center" mb={1} spacing={1}>
-                <AccountBalance sx={{ color: theme.palette.primary.main }} />
-                <Typography variant="h6" color="textSecondary">
-                  Current Balance
-                </Typography>
-              </Stack>
-              <Typography variant="h4" sx={{ fontWeight: "bold", mb: 1 }}>
-                ₹
-                {financialData.currentBalance.toLocaleString("en-IN", {
-                  minimumFractionDigits: 2,
-                })}
-              </Typography>
-            </Box>
-          </GridItemCard>
-          <GridItemCard>
-            <Box sx={{ p: 2 }}>
-              <Stack direction="row" alignItems="center" mb={1} spacing={1}>
                 <Group />
                 <Typography variant="h6" color="textSecondary">
                   Shared Group
@@ -194,7 +173,11 @@ const Dashboard: React.FC = () => {
                 <PieChart sx={{ color: theme.palette.warning.main }} />
                 <Typography variant="h6">Budget Compliance</Typography>
               </Stack>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Typography variant="subtitle2">
                   {capitalize(currentMonthName)}'s budget
                 </Typography>
@@ -202,7 +185,11 @@ const Dashboard: React.FC = () => {
                   Rs. 9313
                 </Typography>
               </Stack>
-              <Stack direction="row" justifyContent="space-between" alignItems="center">
+              <Stack
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+              >
                 <Typography variant="subtitle2">Roll over budget</Typography>
                 <Typography variant="subtitle2" fontWeight={600}>
                   Rs. 300

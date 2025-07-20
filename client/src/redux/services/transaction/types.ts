@@ -6,10 +6,14 @@ export type TransactionItemType = {
   isShared: boolean;
   sharedGroupId?: string;
   note: string;
+  userId: string;
+  splitType: "percentage" | "value";
+  splitDetails: {
+    [userId: string]: number;
+  };
   _id: string;
   createdAt: string;
   updatedAt: string;
-  userId: string;
 };
 
 export type TransactionListResponse = {

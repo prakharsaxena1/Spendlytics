@@ -5,6 +5,7 @@ export interface ISettlements extends Document {
   paidBy: mongoose.Types.ObjectId;
   paidTo: mongoose.Types.ObjectId;
   amount: number;
+  note: string;
 }
 
 const SettlementsSchema = new Schema<ISettlements>(
@@ -13,6 +14,7 @@ const SettlementsSchema = new Schema<ISettlements>(
     paidBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     paidTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
     amount: { type: Number, required: true, min: 0 },
+    note: { type: String, trim: true, default: "" },
   },
   { timestamps: true }
 );

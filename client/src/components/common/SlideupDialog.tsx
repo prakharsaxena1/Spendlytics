@@ -17,10 +17,10 @@ export const SlideUpTransition = React.forwardRef(function Transition(
 
 type SlideupDialogProps = {
   title: string;
-  message: string;
+  message: string | React.ReactNode;
   open: boolean;
   handleClose: () => void;
-  children: React.ReactNode;
+  children?: React.ReactNode;
 };
 
 const SlideupDialog: React.FC<SlideupDialogProps> = (props) => {
@@ -41,7 +41,7 @@ const SlideupDialog: React.FC<SlideupDialogProps> = (props) => {
           {message}
         </DialogContentText>
       </DialogContent>
-      {children}
+      {children && children}
     </Dialog>
   );
 };

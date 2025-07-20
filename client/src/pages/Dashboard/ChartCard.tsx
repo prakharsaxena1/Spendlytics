@@ -14,10 +14,10 @@ type ChartCardProps = {
   data: {
     name: string;
     needs: number;
-    wants: number;
-    investments: number;
     needs_ideal: number;
+    wants: number;
     wants_ideal: number;
+    investments: number;
     investments_ideal: number;
     savings: number;
   }[];

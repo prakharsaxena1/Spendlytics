@@ -11,7 +11,6 @@ import LoginRegister from "../pages/LoginRegister";
 import SharedGroups from "../pages/SharedGroups";
 import { AuthApis } from "../redux/services/auth";
 import { store } from "../redux/store";
-import Friends from "../pages/Friends";
 
 const routes: RouteObject[] = [
   {
@@ -58,6 +57,10 @@ const routes: RouteObject[] = [
             element: <SharedGroups />,
           },
           {
+            path: "/app/shared-groups/:id",
+            element: <SharedGroups />,
+          },
+          {
             path: "/app/money-plans",
             element: <MoneyPlans />,
           },
@@ -68,10 +71,6 @@ const routes: RouteObject[] = [
           {
             path: "/app/account",
             element: <Account />,
-          },
-          {
-            path: "/app/friends",
-            element: <Friends />,
           },
         ],
       },

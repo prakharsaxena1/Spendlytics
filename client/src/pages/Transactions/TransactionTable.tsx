@@ -7,13 +7,14 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type { Table } from "@tanstack/react-table";
 import type { TransactionItemType } from "../../redux/services/transaction/types";
-import { Button } from "@mui/material";
+import { Button, Typography } from "@mui/material";
 import ColumnsToggle from "../../components/TableUI/ColumnsToggle";
-import FilterDialog from "./FilterDialog";
 import ViewColumnIcon from "@mui/icons-material/ViewColumn";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddIcon from "@mui/icons-material/Add";
-import AddTransactionDialog from "./AddTransactionDialog";
+import FormSlideupDialog from "../../components/common/FormSlideupDialog";
+import TransactionFilter from "./TransactionFilter";
+import TransactionForm from "./TransactionForm";
 
 type TransactionTableProps = {
   table: Table<TransactionItemType>;
@@ -116,7 +117,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         <Box>
           <TablePagination
             component="div"
-            count={100}
+            count={table.getRowCount()}
             page={page}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
@@ -126,9 +127,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
           />
         </Box>
       </Stack>
-      <FilterDialog
+      <FormSlideupDialog
         open={openFilterDialog}
         handleClose={handleCloseFilterDialog}
+        title={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <FilterAltIcon />
+            <Typography variant="h5">Filter transactions</Typography>
+          </Stack>
+        }
+        content={<TransactionFilter />}
       />
       <ColumnsToggle
         open={openColumnsToggle}
@@ -136,9 +144,16 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         table={table}
         anchorEl={anchorEl}
       />
-      <AddTransactionDialog
+      <FormSlideupDialog
         open={openAddDialog}
         handleClose={handleCloseAddDialog}
+        title={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <AddIcon />
+            <Typography variant="h5">Add a transaction</Typography>
+          </Stack>
+        }
+        content={<TransactionForm handleClose={handleCloseAddDialog} />}
       />
     </Stack>
   );

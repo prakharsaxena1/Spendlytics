@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface ISharedGroup extends Document {
   groupName: string;
+  // invitedMembers: mongoose.Types.ObjectId[];
   members: mongoose.Types.ObjectId[];
   createdBy: mongoose.Types.ObjectId;
   totalExpense: number;
@@ -14,6 +15,7 @@ export interface ISharedGroup extends Document {
 const SharedGroupSchema = new Schema<ISharedGroup>(
   {
     groupName: { type: String, required: true },
+    // invitedMembers: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     totalExpense: { type: Number, default: 0 },
