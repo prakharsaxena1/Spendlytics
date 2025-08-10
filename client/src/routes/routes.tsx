@@ -8,7 +8,7 @@ import Dashboard from "../pages/Dashboard";
 import Account from "../pages/Account";
 import Settings from "../pages/Settings";
 import LoginRegister from "../pages/LoginRegister";
-import SharedGroups from "../pages/SharedGroups";
+import Groups from "../pages/Groups";
 import { AuthApis } from "../redux/services/auth";
 import { store } from "../redux/store";
 
@@ -53,12 +53,12 @@ const routes: RouteObject[] = [
             element: <Transactions />,
           },
           {
-            path: "/app/shared-groups",
-            element: <SharedGroups />,
+            path: "/app/groups",
+            element: <Groups />,
           },
           {
-            path: "/app/shared-groups/:id",
-            element: <SharedGroups />,
+            path: "/app/groups/:id",
+            element: <Groups />,
           },
           {
             path: "/app/money-plans",

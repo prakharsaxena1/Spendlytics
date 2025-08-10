@@ -3,24 +3,22 @@ import ButtonBase from "@mui/material/ButtonBase";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-// import { selectGroup } from "../../redux/slices/sharedGroup/slice";
-// import { useAppDispatch } from "../../redux/hooks";
 import { useNavigate } from "react-router-dom";
-import type { AllSharedGroupResponse } from "../../redux/services/sharedgroup";
+import type { AllGroupResponse } from "../../redux/services/group";
 import { getFormattedDate } from "../../utils/helper";
 import { Box } from "@mui/material";
 import GroupsIcon from "@mui/icons-material/Groups";
 
-type SGListItemProps = {
-  sharedGroupDetails: AllSharedGroupResponse["sharedGroups"][number];
+type ListItemProps = {
+  groupDetails: AllGroupResponse["groups"][number];
 };
 
-const SGListItem: React.FC<SGListItemProps> = ({ sharedGroupDetails }) => {
+const ListItem: React.FC<ListItemProps> = ({ groupDetails }) => {
   const navigate = useNavigate();
-  const { _id, groupName, totalExpense, updatedAt } = sharedGroupDetails;
+  const { _id, groupName, totalExpense, updatedAt } = groupDetails;
 
   const handleSelect = () => {
-    navigate(`/app/shared-groups/${_id}`);
+    navigate(`/app/groups/${_id}`);
   };
 
   return (
@@ -73,4 +71,4 @@ const SGListItem: React.FC<SGListItemProps> = ({ sharedGroupDetails }) => {
   );
 };
 
-export default SGListItem;
+export default ListItem;

@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from "react";
 import {
   Button,
-  capitalize,
   Grid,
   LinearProgress,
   Paper,
@@ -10,24 +9,14 @@ import {
 } from "@mui/material";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { Group, PieChart, TrendingUp } from "@mui/icons-material";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import GroupsIcon from "@mui/icons-material/Groups";
 import ChartCard from "./ChartCard";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { Dayjs } from "dayjs";
-
-const GridItemCard: React.FC<{ children: React.JSX.Element }> = ({
-  children,
-}) => {
-  return (
-    <Grid size={{ xs: 12, sm: 12, md: 4, lg: 4 }}>
-      <Box component={Paper} elevation={3} height="100%">
-        {children}
-      </Box>
-    </Grid>
-  );
-};
+import GroupSummaryTable from "./GroupSummaryTable";
 
 // Improved data structure
 const generateData = () => {
@@ -51,22 +40,6 @@ const generateData = () => {
     savings: Math.floor(Math.random() * 20000) + 10000,
   }));
 };
-const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
-
-const currentMonthName = monthNames[new Date().getMonth()];
 
 const Dashboard: React.FC = () => {
   const theme = useTheme();
@@ -147,111 +120,78 @@ const Dashboard: React.FC = () => {
           </LocalizationProvider>
         </Grid>
       </Grid>
-      <Stack direction="column" spacing={2} flex={2}>
-        <Grid container spacing={2}>
-          <GridItemCard>
-            <Box sx={{ p: 2 }}>
-              <Stack direction="row" alignItems="center" mb={1} spacing={1}>
-                <Group />
-                <Typography variant="h6" color="textSecondary">
-                  Shared Group
-                </Typography>
-              </Stack>
-              <Stack direction="column">
-                <Typography variant="subtitle2" color="error">
-                  You owe: Rs.{financialData.groupFinances.youOwe}
-                </Typography>
-                <Typography variant="subtitle2" color="success">
-                  You are owed: Rs.{financialData.groupFinances.owedToYou}
-                </Typography>
-              </Stack>
-            </Box>
-          </GridItemCard>
-          <GridItemCard>
-            <Box sx={{ p: 2 }}>
-              <Stack direction="row" alignItems="center" mb={1} spacing={1}>
-                <PieChart sx={{ color: theme.palette.warning.main }} />
-                <Typography variant="h6">Budget Compliance</Typography>
-              </Stack>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography variant="subtitle2">
-                  {capitalize(currentMonthName)}'s budget
-                </Typography>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Rs. 9313
-                </Typography>
-              </Stack>
-              <Stack
-                direction="row"
-                justifyContent="space-between"
-                alignItems="center"
-              >
-                <Typography variant="subtitle2">Roll over budget</Typography>
-                <Typography variant="subtitle2" fontWeight={600}>
-                  Rs. 300
-                </Typography>
-              </Stack>
-            </Box>
-          </GridItemCard>
-          <GridItemCard>
-            <Box sx={{ p: 2 }}>
-              <Stack direction="row" alignItems="center" mb={1} spacing={1}>
-                <TrendingUp sx={{ color: theme.palette.success.main }} />
-                <Typography variant="h6">Your Progress</Typography>
-              </Stack>
-              <Stack direction="row" justifyContent="space-between" mb={0.5}>
-                <Typography variant="subtitle1">Level {level}</Typography>
-                <Typography variant="subtitle1">
-                  {points}/{points + pointsToNextLevel} points
-                </Typography>
-              </Stack>
-              <LinearProgress variant="determinate" value={progress} />
-            </Box>
-          </GridItemCard>
-        </Grid>
-        <Grid container spacing={2}>
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <ChartCard
-              data={chartData}
-              dataKey="investments"
-              idealKey="investments_ideal"
-              color="#2196F3"
-              title="Investments"
-            />
-          </Grid>
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <ChartCard
-              data={chartData}
-              dataKey="savings"
-              idealKey="savings"
-              color="#4CAF50"
-              title="Savings"
-            />
-          </Grid>
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <ChartCard
-              data={chartData}
-              dataKey="needs"
-              idealKey="needs_ideal"
-              color="#FF9800"
-              title="Needs"
-            />
-          </Grid>
-          <Grid size={{ xs: 12, lg: 6 }}>
-            <ChartCard
-              data={chartData}
-              dataKey="wants"
-              idealKey="wants_ideal"
-              color="#9C27B0"
-              title="Wants"
-            />
+      <Grid container spacing={2}>
+        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 9 }}>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12, lg: 6 }}>
+              <ChartCard
+                data={chartData}
+                dataKey="investments"
+                idealKey="investments_ideal"
+                color="#2196F3"
+                title="Investments"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, lg: 6 }}>
+              <ChartCard
+                data={chartData}
+                dataKey="savings"
+                idealKey="savings"
+                color="#4CAF50"
+                title="Savings"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, lg: 6 }}>
+              <ChartCard
+                data={chartData}
+                dataKey="needs"
+                idealKey="needs_ideal"
+                color="#FF9800"
+                title="Needs"
+              />
+            </Grid>
+            <Grid size={{ xs: 12, lg: 6 }}>
+              <ChartCard
+                data={chartData}
+                dataKey="wants"
+                idealKey="wants_ideal"
+                color="#9C27B0"
+                title="Wants"
+              />
+            </Grid>
           </Grid>
         </Grid>
-      </Stack>
+        <Grid size={{ xs: 12, sm: 12, md: 12, lg: 3 }}>
+          <Grid container spacing={2}>
+            <Grid size={{ xs: 12 }}>
+              <Paper sx={{ p: 2 }} elevation={3}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                  <TrendingUpIcon sx={{ color: theme.palette.success.main }} />
+                  <Typography variant="h6">Your Progress</Typography>
+                </Stack>
+                <Stack direction="row" justifyContent="space-between">
+                  <Typography variant="subtitle1">Level {level}</Typography>
+                  <Typography variant="subtitle1">
+                    {points}/{points + pointsToNextLevel} points
+                  </Typography>
+                </Stack>
+                <LinearProgress variant="determinate" value={progress} />
+              </Paper>
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <Paper elevation={3}>
+                <Stack direction="column" flexGrow={1}>
+                  <Stack direction="row" alignItems="center" spacing={1} p={2}>
+                    <GroupsIcon />
+                    <Typography variant="h6">Group summary</Typography>
+                  </Stack>
+                  <GroupSummaryTable />
+                </Stack>
+              </Paper>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
     </Box>
   );
 };

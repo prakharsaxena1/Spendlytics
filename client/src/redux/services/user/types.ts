@@ -15,7 +15,7 @@ export type InvitationType = {
     lastname: string;
   };
   inviteTo: string;
-  sharedGroupId: {
+  groupId: {
     _id: string;
     groupName: string;
   };
@@ -45,6 +45,6 @@ export type InviteActionResponse = {
 export type InviteActionRequest = {
   status: 'accept' | 'reject';
   invitationId: string;
-  sharedGroupId: string;
+  groupId: string;
 };
 

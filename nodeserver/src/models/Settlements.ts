@@ -1,19 +1,21 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ISettlements extends Document {
-  sharedGroupId: mongoose.Types.ObjectId;
+  groupId: mongoose.Types.ObjectId;
   paidBy: mongoose.Types.ObjectId;
   paidTo: mongoose.Types.ObjectId;
   amount: number;
+  status: 'pending' | 'completed' | 'rejected';
   note: string;
 }
 
 const SettlementsSchema = new Schema<ISettlements>(
   {
-    sharedGroupId: { type: Schema.Types.ObjectId, ref: "SharedGroup", required: true },
+    groupId: { type: Schema.Types.ObjectId, ref: "Group", required: true },
     paidBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     paidTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
     amount: { type: Number, required: true, min: 0 },
+    status: { type: String, enum: ["pending", "completed", "rejected"], default: 'pending' },
     note: { type: String, trim: true, default: "" },
   },
   { timestamps: true }

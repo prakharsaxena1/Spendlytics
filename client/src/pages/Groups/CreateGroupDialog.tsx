@@ -1,21 +1,16 @@
 import {
   Box,
   Button,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  IconButton,
   Stack,
   Typography,
 } from "@mui/material";
 import React from "react";
-import { SlideUpTransition } from "../../components/common/SlideupDialog";
 import AddIcon from "@mui/icons-material/Add";
-import CloseIcon from "@mui/icons-material/Close";
 import FormInput from "../../components/common/FormInput";
 import MemberAutocomplete from "./MembersAutocomplete";
 import type { MemberType } from "../../redux/services/user";
-import { SharedGroupApis } from "../../redux/services/sharedgroup";
+import { GroupApis } from "../../redux/services/group";
+import FormSlideupDialog from "../../components/common/FormSlideupDialog";
 
 type CreateGroupDialogProps = {
   open: boolean;
@@ -32,7 +27,7 @@ const CreateGroupDialog: React.FC<CreateGroupDialogProps> = ({
   const [members, setMembers] = React.useState<MemberType[]>([]);
 
   const [createGroupTrigger, { isLoading, isError }] =
-    SharedGroupApis.useCreateSharedGroupMutation();
+    GroupApis.useCreateGroupMutation();
 
   const handleGroupCreation = () => {
     let isValid = true;
@@ -72,30 +67,16 @@ const CreateGroupDialog: React.FC<CreateGroupDialogProps> = ({
   };
 
   return (
-    <Dialog
+    <FormSlideupDialog
       open={open}
-      slots={{
-        transition: SlideUpTransition,
-      }}
-      onClose={handleDialogClose}
-      maxWidth="xl"
-    >
-      <DialogTitle sx={{ bgcolor: "#ECF0F1" }}>
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Stack direction="row" spacing={1} alignItems="center">
-            <AddIcon />
-            <Typography variant="h5">Create group</Typography>
-          </Stack>
-          <IconButton onClick={handleDialogClose}>
-            <CloseIcon />
-          </IconButton>
+      handleClose={handleDialogClose}
+      title={
+        <Stack direction="row" spacing={1} alignItems="center">
+          <AddIcon />
+          <Typography variant="h5">Create group</Typography>
         </Stack>
-      </DialogTitle>
-      <DialogContent>
+      }
+      content={
         <Box sx={{ p: 3, width: 500 }}>
           <Stack
             height="100%"
@@ -129,8 +110,8 @@ const CreateGroupDialog: React.FC<CreateGroupDialogProps> = ({
             </Button>
           </Stack>
         </Box>
-      </DialogContent>
-    </Dialog>
+      }
+    />
   );
 };
 

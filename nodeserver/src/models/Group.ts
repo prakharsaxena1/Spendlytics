@@ -1,8 +1,8 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface ISharedGroup extends Document {
+export interface IGroup extends Document {
+  unsettledAmount: number;
   groupName: string;
-  // invitedMembers: mongoose.Types.ObjectId[];
   members: mongoose.Types.ObjectId[];
   createdBy: mongoose.Types.ObjectId;
   totalExpense: number;
@@ -12,20 +12,20 @@ export interface ISharedGroup extends Document {
   updatedAt: Date;
 }
 
-const SharedGroupSchema = new Schema<ISharedGroup>(
+const GroupSchema = new Schema<IGroup>(
   {
+    unsettledAmount: { type: Number, required: true, default: 0 },
     groupName: { type: String, required: true },
-    // invitedMembers: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    totalExpense: { type: Number, default: 0 },
+    totalExpense: { type: Number, required: true, default: 0 },
     isSettled: { type: Boolean, default: false },
     lastSettledAt: { type: Date, default: null },
   },
   { timestamps: true }
 );
 
-export const SharedGroup = mongoose.model<ISharedGroup>(
-  "SharedGroup",
-  SharedGroupSchema
+export const Group = mongoose.model<IGroup>(
+  "Group",
+  GroupSchema
 );

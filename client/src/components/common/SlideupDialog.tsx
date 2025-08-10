@@ -1,7 +1,6 @@
 import React from "react";
 import Dialog from "@mui/material/Dialog";
 import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import Slide from "@mui/material/Slide";
 import type { TransitionProps } from "@mui/material/transitions";
@@ -36,12 +35,8 @@ const SlideupDialog: React.FC<SlideupDialogProps> = (props) => {
       aria-describedby="alert-dialog-slide-description"
     >
       <DialogTitle>{title}</DialogTitle>
-      <DialogContent>
-        <DialogContentText id="alert-dialog-slide-description">
-          {message}
-        </DialogContentText>
-      </DialogContent>
-      {children && children}
+      <DialogContent>{message}</DialogContent>
+      {children}
     </Dialog>
   );
 };

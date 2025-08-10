@@ -1,15 +1,12 @@
 import { Response } from "express";
 import { AuthenticatedRequest } from "../middleware/auth";
-import { SharedGroup } from "../models/SharedGroup";
+import { Group } from "../models/Group";
 import { param, body, validationResult } from "express-validator";
-import { Transaction } from "../models/Transaction";
 import { Settlements } from "../models/Settlements";
 import { Invitations } from "../models/Invitations";
+import { GroupTransaction } from "../models/GroupTransaction";
 
-export const createSharedGroup = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+export const createGroup = async (req: AuthenticatedRequest, res: Response) => {
   try {
     await Promise.all([
       body("groupName")
@@ -38,31 +35,31 @@ export const createSharedGroup = async (
     const { groupName, members } = req.body;
     const createdBy = req.user._id as string;
 
-    const newSharedGroup = new SharedGroup({
+    const newGroup = new Group({
       groupName,
       members: [createdBy],
       createdBy,
     });
 
-    await newSharedGroup.save();
+    await newGroup.save();
 
     await Promise.all(
       (members as string[]).map((member) =>
         Invitations.create({
           inviteBy: createdBy,
           inviteTo: member,
-          sharedGroupId: newSharedGroup._id,
+          groupId: newGroup._id,
         })
       )
     );
 
     res.status(201).json({
       success: true,
-      message: "Shared group created successfully.",
-      sharedGroup: newSharedGroup,
+      message: "Group created successfully.",
+      group: newGroup,
     });
   } catch (error) {
-    console.error("Error creating shared group:", error);
+    console.error("Error creating group:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -70,84 +67,20 @@ export const createSharedGroup = async (
   }
 };
 
-export const getSharedGroup = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+export const getGroups = async (req: AuthenticatedRequest, res: Response) => {
   try {
-    await Promise.all([
-      param("groupId")
-        .notEmpty()
-        .withMessage("Shared group ID is required")
-        .isMongoId()
-        .withMessage("Shared group ID must be a valid MongoDB ID")
-        .run(req),
-    ]);
-
-    const { groupId } = req.params;
-
-    if (!groupId) {
-      res.status(400).json({
-        success: false,
-        message: "Shared group ID is required.",
-      });
-      return;
-    }
-
-    const sharedGroup = await SharedGroup.findById(groupId).populate(
-      "members",
-      "username firstname lastname level"
-    );
-
-    const sharedGroupTransactions = await Transaction.find({
-      isShared: true,
-      sharedGroup: groupId,
-    });
-
-    const invitedMembers = await Invitations.find({
-      sharedGroupId: groupId,
-    })
-      .select("_id inviteBy inviteTo sharedGroupId")
-      .populate("inviteTo", "username firstname lastname");
-
-    if (!sharedGroup) {
-      res.status(404).json({
-        success: false,
-        message: "Shared group not found.",
-      });
-      return;
-    }
-
-    res.status(200).json({
-      success: true,
-      sharedGroup,
-      invitedMembers,
-      transactions: sharedGroupTransactions,
-    });
-  } catch (error) {
-    console.error("Error fetching shared group:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-};
-
-export const getAllSharedGroup = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  try {
-    const sharedGroups = await SharedGroup.aggregate([
+    const userId = req.user._id as string;
+    const groups = await Group.aggregate([
       {
         $match: {
-          $or: [{ createdBy: req.user._id }, { members: req.user._id }],
+          $or: [{ createdBy: userId }, { members: userId }],
         },
       },
       {
         $project: {
           groupName: 1,
           totalExpense: 1,
+          unsettledAmount: 1,
           isSettled: 1,
           updatedAt: 1,
         },
@@ -156,10 +89,10 @@ export const getAllSharedGroup = async (
 
     res.status(200).json({
       success: true,
-      sharedGroups,
+      groups,
     });
   } catch (error) {
-    console.error("Error fetching all shared groups:", error);
+    console.error("Error fetching all groups:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -167,20 +100,57 @@ export const getAllSharedGroup = async (
   }
 };
 
-export const deleteSharedGroup = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
+export const deleteGroup = async (req: AuthenticatedRequest, res: Response) => {
+  await param("groupId")
+    .notEmpty()
+    .withMessage("Group ID is required")
+    .isMongoId()
+    .withMessage("Group ID must be a valid MongoDB ID")
+    .run(req);
+
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    res
+      .status(400)
+      .json({ message: "Invalid request", errors: errors.array() });
+    return;
+  }
+
+  const { groupId } = req.params;
+  const userId = req.user._id;
+  const deletedGroup = await Group.findOneAndDelete({
+    _id: groupId,
+    createdBy: userId,
+  });
+  if (!deletedGroup) {
+    res.status(404).json({
+      success: false,
+      message: "Group not found or you are not authorized to delete it.",
+    });
+    return;
+  }
+  await Promise.all([
+    GroupTransaction.deleteMany({ group: groupId }),
+    Invitations.deleteMany({ group: groupId }),
+    Settlements.deleteMany({ group: groupId }),
+  ]);
+  res.status(200).json({
+    success: true,
+    message: "Group and all related data deleted successfully.",
+  });
+  return;
+};
+
+export const getGroup = async (req: AuthenticatedRequest, res: Response) => {
   try {
     await Promise.all([
       param("groupId")
         .notEmpty()
-        .withMessage("Shared group ID is required")
+        .withMessage("Group ID is required")
         .isMongoId()
-        .withMessage("Shared group ID must be a valid MongoDB ID")
+        .withMessage("Group ID must be a valid MongoDB ID")
         .run(req),
     ]);
-    const { groupId } = req.params;
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res
@@ -188,83 +158,35 @@ export const deleteSharedGroup = async (
         .json({ message: "Invalid request", errors: errors.array() });
       return;
     }
+    const { groupId } = req.params;
+    const group = await Group.findById(groupId).populate(
+      "members",
+      "username firstname lastname level"
+    );
 
-    const deletedSharedGroup = await SharedGroup.findByIdAndDelete(groupId);
+    const transactions = await GroupTransaction.find({ groupId });
+    const invitedMembers = await Invitations.find({ groupId })
+      .select("_id inviteBy inviteTo groupId")
+      .populate("inviteTo", "username firstname lastname");
+    const settlements = await Settlements.find({ groupId });
 
-    if (!deletedSharedGroup) {
+    if (!group) {
       res.status(404).json({
         success: false,
-        message: "Shared group not found.",
+        message: "Group not found.",
       });
       return;
     }
 
     res.status(200).json({
       success: true,
-      message: "Shared group deleted successfully.",
+      group,
+      invitedMembers,
+      transactions,
+      settlements,
     });
   } catch (error) {
-    console.error("Error deleting shared group:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-};
-
-export const addSettlementToSharedGroup = async (
-  req: AuthenticatedRequest,
-  res: Response
-) => {
-  try {
-    await Promise.all([
-      param("groupId")
-        .notEmpty()
-        .withMessage("Shared group ID is required")
-        .isMongoId()
-        .withMessage("Shared group ID must be a valid MongoDB ID")
-        .run(req),
-      body("paidTo")
-        .isMongoId()
-        .withMessage("Paid to must be a valid user ID")
-        .run(req),
-      body("amount")
-        .isNumeric()
-        .withMessage("Settlement amount must be a number")
-        .run(req),
-      body("note")
-        .optional()
-        .trim()
-        .isString()
-        .withMessage("Note must be a string")
-        .run(req),
-    ]);
-    const { groupId } = req.params;
-    const { paidTo, amount, note } = req.body;
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
-      return;
-    }
-
-    const settlement = new Settlements({
-      paidBy: req.user._id,
-      sharedGroupId: groupId,
-      paidTo,
-      amount,
-      note,
-    });
-
-    await settlement.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Settlement added successfully.",
-    });
-  } catch (error) {
-    console.error("Error adding settlement to shared group:", error);
+    console.error("Error fetching Group:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
@@ -275,6 +197,12 @@ export const addSettlementToSharedGroup = async (
 export const addMember = async (req: AuthenticatedRequest, res: Response) => {
   try {
     await Promise.all([
+      param("groupId")
+        .notEmpty()
+        .withMessage("Group ID is required")
+        .isMongoId()
+        .withMessage("Group ID must be a valid MongoDB ID")
+        .run(req),
       body("members")
         .isArray({ min: 1 })
         .withMessage("Members must be an array with at least one element")
@@ -296,14 +224,21 @@ export const addMember = async (req: AuthenticatedRequest, res: Response) => {
 
     const { members } = req.body;
     const { groupId } = req.params;
-    const createdBy = req.user._id as string;
-
+    const createdBy = req.user._id;
+    const group = await Group.findById(groupId);
+    if (group.createdBy.toString() !== groupId) {
+      res.status(401).json({
+        success: false,
+        message: "You are not authorized to add members to this group",
+      });
+      return
+    }
     await Promise.all(
       (members as string[]).map((member) =>
         Invitations.create({
           inviteBy: createdBy,
           inviteTo: member,
-          sharedGroupId: groupId,
+          groupId,
         })
       )
     );
@@ -345,10 +280,10 @@ export const removeMember = async (
     await Invitations.deleteMany({
       inviteTo: member,
       inviteBy: userId,
-      sharedGroupId: groupId,
+      groupId,
     });
 
-    const updatedGroup = await SharedGroup.findByIdAndUpdate(
+    const updatedGroup = await Group.findByIdAndUpdate(
       groupId,
       { $pull: { members: member } },
       { new: true }
@@ -356,17 +291,10 @@ export const removeMember = async (
       .populate("members", "username firstname lastname email level")
       .lean();
 
-    const memberCount = Array.isArray(updatedGroup.members)
-      ? updatedGroup.members.length
-      : 0;
-
     res.status(200).json({
       success: true,
-      message: `Member ${member} removed`,
-      sharedGroup: {
-        ...updatedGroup,
-        memberCount,
-      },
+      message: "Member removed",
+      group: updatedGroup,
     });
   } catch (error) {
     console.error("Error in removeMember:", error);
@@ -375,5 +303,56 @@ export const removeMember = async (
       message: "Internal server error",
     });
     return;
+  }
+};
+
+export const updateGroupName = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    await Promise.all([
+      param("groupId")
+        .notEmpty()
+        .withMessage("Group ID is required")
+        .isMongoId()
+        .withMessage("Group ID must be a valid MongoDB ID")
+        .run(req),
+      body("groupName")
+        .notEmpty()
+        .withMessage("Group name is required")
+        .run(req),
+    ]);
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res
+        .status(400)
+        .json({ message: "Invalid request", errors: errors.array() });
+      return;
+    }
+
+    const { groupId } = req.params;
+    const { groupName } = req.body;
+
+    const updatedGroup = await Group.findOneAndUpdate(
+      { groupId, createdBy: req.user._id },
+      { groupName },
+      { new: true, runValidators: true }
+    )
+      .populate("members", "username firstname lastname email level")
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      message: "Group name updated",
+      group: updatedGroup,
+    });
+  } catch (error) {
+    console.error("Error adding settlement to group:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };

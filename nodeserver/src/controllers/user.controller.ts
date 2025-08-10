@@ -2,8 +2,9 @@ import { Request, Response } from "express";
 import { User } from "../models/User";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { Invitations } from "../models/Invitations";
-import { SharedGroup } from "../models/SharedGroup";
+import { Group } from "../models/Group";
 import { body, validationResult } from "express-validator";
+import { Settlements } from "../models/Settlements";
 
 export const searchUsers = async (req: Request, res: Response) => {
   try {
@@ -51,11 +52,13 @@ export const userNotifications = async (
     const invitations = await Invitations.find({
       inviteTo: userId,
     })
-      .populate("sharedGroupId", "groupName")
+      .populate("groupId", "groupName")
       .populate("inviteBy", "username firstname lastname");
+    const settlements = await Settlements.find({ paidTo: userId });
     res.status(200).json({
       success: true,
       invitations,
+      settlements,
     });
   } catch (error) {
     console.error("User search error:", error);
@@ -81,10 +84,10 @@ export const inviteAction = async (
         .isIn(["accept", "reject"])
         .withMessage("Status is required")
         .run(req),
-      body("sharedGroupId")
+      body("groupId")
         .isMongoId()
         .notEmpty()
-        .withMessage("SharedGroup Id is required")
+        .withMessage("Group Id is required")
         .run(req),
     ]);
 
@@ -97,17 +100,17 @@ export const inviteAction = async (
       return;
     }
     const userId = req.user._id;
-    const { invitationId, sharedGroupId, status } = req.body;
+    const { invitationId, groupId, status } = req.body;
     if (status === "accept") {
-      const sharedGroup = await SharedGroup.findByIdAndUpdate(
-        sharedGroupId,
+      const group = await Group.findByIdAndUpdate(
+        groupId,
         { $addToSet: { members: userId } },
         { new: true }
       );
-      if (!sharedGroup) {
+      if (!group) {
         res.status(404).json({
           success: false,
-          message: "Shared group not found.",
+          message: "Group not found.",
         });
         return;
       }
@@ -117,7 +120,7 @@ export const inviteAction = async (
       success: true,
       message:
         status === "accept"
-          ? "User added to shared group"
+          ? "User added to group"
           : "Invitation rejected",
     });
   } catch (error) {

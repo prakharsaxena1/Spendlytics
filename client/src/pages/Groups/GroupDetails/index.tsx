@@ -4,16 +4,18 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useParams } from "react-router-dom";
 import { Button, ButtonBase } from "@mui/material";
-import { MoreVert, Add } from "@mui/icons-material";
+import MoreVert from "@mui/icons-material/MoreVert";
+import AddIcon from "@mui/icons-material/Add";
 import GroupIcon from "@mui/icons-material/Group";
-import SGOptions from "./SGOptions";
-import SGMembers from "./SGMembers";
-import { SharedGroupApis } from "../../../redux/services/sharedgroup";
+import Options from "./Options";
+import Members from "./Members";
+import { GroupApis } from "../../../redux/services/group";
 import { useAppSelector } from "../../../redux/hooks";
 import { CurrentUserSelector } from "../../../redux/slices/auth/selector";
-import CreateGroupExpense from "./CreateGroupExpense";
+import FormSlideupDialog from "../../../components/common/FormSlideupDialog";
+import GroupExpenseForm from "./GroupExpenseForm";
 
-const SGDetails: React.FC = () => {
+const GroupDetails: React.FC = () => {
   const { id } = useParams();
   const user = useAppSelector(CurrentUserSelector);
   const [openCreateGroupExpense, setOpenCreateGroupExpense] = useState(false);
@@ -21,8 +23,8 @@ const SGDetails: React.FC = () => {
   const [anchorElMembers, setAnchorElMembers] = useState<null | HTMLElement>(
     null
   );
-  const [SGDetailTrigger, { data }] =
-    SharedGroupApis.useLazyGetSharedGroupDetailsQuery();
+  const [GroupDetailTrigger, { data }] =
+    GroupApis.useLazyGetGroupDetailsQuery();
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
@@ -48,15 +50,15 @@ const SGDetails: React.FC = () => {
 
   useEffect(() => {
     if (id) {
-      SGDetailTrigger({ id });
+      GroupDetailTrigger({ id });
     }
-  }, [SGDetailTrigger, id]);
+  }, [GroupDetailTrigger, id]);
 
   if (!id) {
     return (
       <Stack flexGrow={1} alignItems="center" justifyContent="center">
         <Typography variant="h4" color="textSecondary">
-          Select a shared group
+          Select a group
         </Typography>
       </Stack>
     );
@@ -70,29 +72,31 @@ const SGDetails: React.FC = () => {
         justifyContent="space-between"
         p={1}
       >
-        <Typography variant="h5">{data?.sharedGroup?.groupName}</Typography>
+        <Typography variant="h5">{data?.group?.groupName}</Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          <Button
-            startIcon={<Add />}
-            variant="contained"
-            size="small"
-            color="inherit"
-            onClick={handleOpenCreateGroupExpenseDialog}
-          >
-            expense
-          </Button>
+          {data?.group && data.group.members.length > 1 && (
+            <Button
+              startIcon={<AddIcon />}
+              variant="contained"
+              size="small"
+              color="inherit"
+              onClick={handleOpenCreateGroupExpenseDialog}
+            >
+              expense
+            </Button>
+          )}
           <ButtonBase
             sx={{ p: 1, borderRadius: 1 }}
             onClick={handleOpenMenuMembers}
           >
             <Stack direction="row" spacing={1} alignItems="center">
               <Typography fontWeight={600}>
-                {data?.sharedGroup.members.length}
+                {data?.group.members.length}
               </Typography>
               <GroupIcon />
             </Stack>
           </ButtonBase>
-          {user?._id === data?.sharedGroup.createdBy && (
+          {user?._id === data?.group.createdBy && (
             <ButtonBase sx={{ p: 1, borderRadius: 1 }} onClick={handleOpenMenu}>
               <MoreVert />
             </ButtonBase>
@@ -100,17 +104,34 @@ const SGDetails: React.FC = () => {
         </Stack>
       </Stack>
       <Divider />
-      <SGMembers
+      {/* Popup menus */}
+      <Members
         anchorEl={anchorElMembers}
         handleCloseMenu={handleCloseMenuMembers}
-        groupMembers={data?.sharedGroup?.members ?? []}
-        createrId={data?.sharedGroup.createdBy ?? ""}
+        groupMembers={data?.group?.members ?? []}
+        createrId={data?.group.createdBy ?? ""}
         invitedMembers={data?.invitedMembers ?? []}
       />
-      <SGOptions anchorEl={anchorEl} handleCloseMenu={handleCloseMenu} />
-      <CreateGroupExpense open={openCreateGroupExpense} handleClose={handleCloseCreateGroupExpenseDialog} />
+      <Options anchorEl={anchorEl} handleCloseMenu={handleCloseMenu} />
+      <FormSlideupDialog
+        open={openCreateGroupExpense}
+        handleClose={handleCloseCreateGroupExpenseDialog}
+        title={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <AddIcon />
+            <Typography variant="h5">Create group expense</Typography>
+          </Stack>
+        }
+        content={
+          <GroupExpenseForm
+            members={data?.group.members ?? []}
+            handleClose={handleCloseCreateGroupExpenseDialog}
+            groupId={id}
+          />
+        }
+      />
     </Stack>
   );
 };
 
-export default SGDetails;
+export default GroupDetails;

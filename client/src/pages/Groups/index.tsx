@@ -1,16 +1,16 @@
 import React from "react";
 import { Divider, Stack } from "@mui/material";
-import SGListContainer from "./SGListContainer";
-import SGDetails from "./SGDetails";
+import ListContainer from "./ListContainer";
+import GroupDetails from "./GroupDetails";
 
-const SharedGroups: React.FC = () => {
+const Groups: React.FC = () => {
   return (
     <Stack direction="row" flexGrow={1} overflow="hidden">
-      <SGListContainer />
+      <ListContainer />
       <Divider orientation="vertical" />
-      <SGDetails />
+      <GroupDetails />
     </Stack>
   );
 };
 
-export default SharedGroups;
+export default Groups;

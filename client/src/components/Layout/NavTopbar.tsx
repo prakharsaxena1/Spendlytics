@@ -86,9 +86,11 @@ const NavTopbar: React.FC = () => {
           </Box>
           <Divider />
           <Box sx={{ width: 450, p: 2 }}>
-            {data?.invitations.map((invitation) => (
-              <InvitaionBox invitationObj={invitation} />
-            ))}
+            <Stack direction="column" spacing={1}>
+              {data?.invitations.map((invitation) => (
+                <InvitaionBox invitationObj={invitation} />
+              ))}
+            </Stack>
           </Box>
         </Drawer>
       </Stack>

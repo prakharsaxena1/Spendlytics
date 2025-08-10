@@ -36,15 +36,7 @@ export const createTransaction = async (
         .withMessage("Invalid category provided")
         .run(req),
       body("note").optional().isString().run(req),
-      body("isShared").optional().isBoolean().run(req),
-      body("sharedGroupId")
-        .optional()
-        .isMongoId()
-        .withMessage("Invalid shared group ID")
-        .run(req),
     ]);
-
-    // Check for any validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res
@@ -52,19 +44,8 @@ export const createTransaction = async (
         .json({ message: "Invalid request", errors: errors.array() });
       return;
     }
-
-    // Destructure validated fields from request body
-    const {
-      transactionType,
-      amount,
-      transactionDate,
-      category,
-      note,
-      isShared,
-      sharedGroupId,
-    } = req.body;
-
-    // Create a new Transaction document.
+    const { transactionType, amount, transactionDate, category, note } =
+      req.body;
     const newTransaction = new Transaction({
       userId: req.user._id,
       transactionType,
@@ -72,19 +53,12 @@ export const createTransaction = async (
       transactionDate,
       category,
       note,
-      isShared,
-      sharedGroupId,
     });
-
-    // Save the transaction in the database.
     const savedTransaction = await newTransaction.save();
-
-    // Respond with the created transaction status.
     res.status(201).json({
       message: "Transaction created successfully",
       transaction: savedTransaction,
     });
-    return;
   } catch (error) {
     console.error("Error creating transaction:", error);
     res.status(500).json({ message: "Server error", transaction: null });
@@ -97,18 +71,9 @@ export const getTransactions = async (
   res: Response
 ): Promise<void> => {
   try {
-    // Check for validation errors.
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
-      return;
-    }
-
-    // Query the database for transactions belonging to the specified user.
     const transactions = await Transaction.find({ userId: req.user._id }).sort({
       transactionDate: -1,
+      createdBy: -1,
     });
 
     // Respond with the fetched transactions.
@@ -158,12 +123,6 @@ export const updateTransaction = async (
         .isIn(["needs", "wants", "savings", "investments", "debt"])
         .withMessage("Invalid category provided")
         .run(req),
-      body("isShared").optional().isBoolean().run(req),
-      body("sharedGroupId")
-        .optional()
-        .isMongoId()
-        .withMessage("Invalid shared group ID")
-        .run(req),
     ]);
 
     // Check for any validation errors.
@@ -177,17 +136,14 @@ export const updateTransaction = async (
 
     // Extract the transactionId from URL parameters and userId from the body.
     const { transactionId } = req.params;
-    const { amount, transactionDate, note, category, isShared, sharedGroupId } =
-      req.body;
+    const { amount, transactionDate, note, category } = req.body;
 
     // Ensure at least one allowed field is provided for update.
     if (
       amount === undefined &&
       transactionDate === undefined &&
       note === undefined &&
-      category === undefined &&
-      isShared === undefined &&
-      sharedGroupId === undefined
+      category === undefined
     ) {
       res.status(400).json({
         message:
@@ -202,8 +158,6 @@ export const updateTransaction = async (
       transactionDate: Date;
       note: string;
       category: ITransaction["category"];
-      isShared: boolean;
-      sharedGroupId: string;
     }> = {};
 
     if (amount !== undefined) {
@@ -217,12 +171,6 @@ export const updateTransaction = async (
     }
     if (category !== undefined) {
       updateFields.category = category;
-    }
-    if (category !== undefined) {
-      updateFields.isShared = isShared;
-    }
-    if (category !== undefined) {
-      updateFields.sharedGroupId = sharedGroupId;
     }
     // Update the transaction ensuring it belongs to the specified user.
     const updatedTransaction = await Transaction.findOneAndUpdate(

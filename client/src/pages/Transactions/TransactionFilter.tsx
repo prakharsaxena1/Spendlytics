@@ -11,20 +11,17 @@ import {
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs, { Dayjs } from "dayjs";
 import type { TransactionItemType } from "../../redux/services/transaction/types";
-
-const CategoryOptions = ["savings", "debt", "investments", "needs", "wants"];
-
-const TODAY = dayjs();
+import { CategoryOptions, TODAY } from "../../constants/constants";
+import dayjs from "dayjs";
 
 const TransactionFilter: React.FC = () => {
   const [category, setCategory] =
     useState<TransactionItemType["category"]>("investments");
-  const [transactionFromDate, setTransactionFromDate] = useState<Dayjs | null>(
+  const [transactionFromDate, setTransactionFromDate] = useState<string>(
     TODAY
   );
-  const [transactionToDate, setTransactionToDate] = useState<Dayjs | null>(
+  const [transactionToDate, setTransactionToDate] = useState<string>(
     TODAY
   );
 
@@ -61,8 +58,8 @@ const TransactionFilter: React.FC = () => {
                 From (DD/MM/YYYY)
               </Typography>
               <DatePicker
-                value={transactionFromDate}
-                onChange={(value) => setTransactionFromDate(value)}
+                value={dayjs(transactionFromDate)}
+                onChange={(value) => setTransactionFromDate(value?.toISOString() ?? TODAY)}
                 slotProps={{
                   textField: {
                     size: "small",
@@ -77,8 +74,8 @@ const TransactionFilter: React.FC = () => {
                 To (DD/MM/YYYY)
               </Typography>
               <DatePicker
-                value={transactionToDate}
-                onChange={(value) => setTransactionToDate(value)}
+                value={dayjs(transactionToDate)}
+                onChange={(value) => setTransactionToDate(value?.toISOString() ?? TODAY)}
                 slotProps={{
                   textField: {
                     size: "small",

@@ -3,8 +3,7 @@ export type TransactionItemType = {
   category: "needs" | "wants" | "investments" | "savings" | "debt";
   amount: number;
   transactionDate: string;
-  isShared: boolean;
-  sharedGroupId?: string;
+  groupId?: string;
   note: string;
   userId: string;
   splitType: "percentage" | "value";
@@ -31,8 +30,7 @@ export type CreateTransactionRequest = {
   category: TransactionItemType["category"];
   amount: number;
   transactionDate: string;
-  isShared?: boolean;
-  sharedGroupId?: string | undefined;
+  groupId?: string | undefined;
   note: string;
 };
 

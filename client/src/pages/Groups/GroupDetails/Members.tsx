@@ -10,21 +10,21 @@ import Typography from "@mui/material/Typography";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import MemberItem from "./MemberItem";
 import SlideupDialog from "../../../components/common/SlideupDialog";
-import type { SharedGroupDetailsResponse } from "../../../redux/services/sharedgroup";
+import type { GroupDetailsResponse } from "../../../redux/services/group";
 import type { MemberType } from "../../../redux/services/user";
 import { useAppSelector } from "../../../redux/hooks";
 import { CurrentUserSelector } from "../../../redux/slices/auth/selector";
 import MemberAutocomplete from "../MembersAutocomplete";
 
-type SGMembersProps = {
+type GroupMembersProps = {
   anchorEl: null | HTMLElement;
   handleCloseMenu: () => void;
   groupMembers: MemberType[];
-  invitedMembers: SharedGroupDetailsResponse["invitedMembers"] | [];
+  invitedMembers: GroupDetailsResponse["invitedMembers"] | [];
   createrId: string;
 };
 
-const SGMembers: React.FC<SGMembersProps> = ({
+const GroupMembers: React.FC<GroupMembersProps> = ({
   anchorEl,
   handleCloseMenu,
   groupMembers,
@@ -173,4 +173,4 @@ const SGMembers: React.FC<SGMembersProps> = ({
   );
 };
 
-export default SGMembers;
+export default GroupMembers;

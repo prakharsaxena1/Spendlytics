@@ -31,7 +31,7 @@ export const UserApis = baseApi.injectEndpoints({
         method: "POST",
         body
       }),
-      invalidatesTags: ['notifications-invitations', 'shared-groups']
+      invalidatesTags: ['notifications-invitations', 'groups']
     }),
   }),
 });

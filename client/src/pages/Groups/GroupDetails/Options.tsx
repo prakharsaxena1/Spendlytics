@@ -12,12 +12,12 @@ import SlideupDialog from "../../../components/common/SlideupDialog";
 import { Button, DialogActions, Stack, Typography } from "@mui/material";
 import FormInput from "../../../components/common/FormInput";
 
-type SGOptionsProps = {
+type GroupOptionsProps = {
   anchorEl: null | HTMLElement;
   handleCloseMenu: () => void;
 };
 
-const SGOptions: React.FC<SGOptionsProps> = ({ anchorEl, handleCloseMenu }) => {
+const GroupOptions: React.FC<GroupOptionsProps> = ({ anchorEl, handleCloseMenu }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [changeNameDialogOpen, setChangeNameDialogOpen] = useState(false);
 
@@ -147,4 +147,4 @@ const SGOptions: React.FC<SGOptionsProps> = ({ anchorEl, handleCloseMenu }) => {
   );
 };
 
-export default SGOptions;
+export default GroupOptions;

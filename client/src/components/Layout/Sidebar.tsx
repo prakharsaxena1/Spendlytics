@@ -54,9 +54,9 @@ const Sidebar = () => {
           isCollapsed={collapsed}
         />
         <NavItem
-          path="shared-groups"
+          path="groups"
           icon={<GroupsIcon />}
-          navName="Shared Groups"
+          navName="Groups"
           isCollapsed={collapsed}
         />
         <NavItem

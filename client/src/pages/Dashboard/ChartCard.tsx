@@ -38,7 +38,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
     <Typography variant="h6" gutterBottom>
       {title}
     </Typography>
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data}>
         <XAxis
           dataKey="name"
