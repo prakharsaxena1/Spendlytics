@@ -1,4 +1,5 @@
 export type TransactionItemType = {
+  _id: string;
   transactionType: "inflow" | "outflow";
   category: "needs" | "wants" | "investments" | "savings" | "debt";
   amount: number;
@@ -6,11 +7,6 @@ export type TransactionItemType = {
   groupId?: string;
   note: string;
   userId: string;
-  splitType: "percentage" | "value";
-  splitDetails: {
-    [userId: string]: number;
-  };
-  _id: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -30,7 +26,6 @@ export type CreateTransactionRequest = {
   category: TransactionItemType["category"];
   amount: number;
   transactionDate: string;
-  groupId?: string | undefined;
   note: string;
 };
 

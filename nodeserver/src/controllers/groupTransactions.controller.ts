@@ -64,9 +64,11 @@ export const addGroupTransaction = async (
     ]);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
 
@@ -94,13 +96,16 @@ export const addGroupTransaction = async (
     );
 
     res.status(201).json({
+      success: true,
       message: "Transaction added and group totals updated.",
       transaction,
       updatedGroup,
     });
   } catch (error) {
     console.error("Error fetching transactions:", error);
-    res.status(500).json({ message: "Server error", transactions: [] });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", transactions: [] });
   }
 };
 
@@ -118,25 +123,29 @@ export const getGroupTransactions = async (
         .run(req),
     ]);
 
-    const { groupId } = req.params;
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
+    const { groupId } = req.params;
     const transactions = await GroupTransaction.find({ groupId }).sort({
       transactionDate: -1,
     });
     res.status(200).json({
+      success: true,
       message: "Transactions fetched successfully",
       transactions,
     });
   } catch (error) {
     console.error("Error fetching transactions:", error);
-    res.status(500).json({ message: "Server error", transactions: [] });
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", transactions: [] });
     return;
   }
 };
@@ -208,15 +217,16 @@ export const editGroupTransaction = async (
 
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res
-      .status(400)
-      .json({ message: "Invalid request", errors: errors.array() });
+    res.status(400).json({
+      success: false,
+      message: "Invalid request",
+      errors: errors.array(),
+    });
     return;
   }
 
-  const { groupId } = req.params;
+  const { groupId, transactionId } = req.params;
   const {
-    transactionId,
     amount: newAmount,
     transactionDate,
     note,
@@ -235,7 +245,10 @@ export const editGroupTransaction = async (
     if (!existing) {
       await session.abortTransaction();
       session.endSession();
-      res.status(404).json({ message: "Transaction not found in this group." });
+      res.status(404).json({
+        success: false,
+        message: "Transaction not found in this group.",
+      });
       return;
     }
     const delta = newAmount - existing.amount;
@@ -258,6 +271,7 @@ export const editGroupTransaction = async (
     await session.commitTransaction();
     session.endSession();
     res.status(200).json({
+      success: true,
       message: "Transaction updated and unsettledAmount adjusted.",
       transaction: existing,
     });
@@ -281,7 +295,7 @@ export const deleteGroupTransaction = async (
         .isMongoId()
         .withMessage("Group ID must be a valid MongoDB ID")
         .run(req),
-      body("transactionId")
+      param("transactionId")
         .notEmpty()
         .withMessage("Transaction ID is required")
         .isMongoId()
@@ -290,13 +304,14 @@ export const deleteGroupTransaction = async (
     ]);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
-    const { groupId } = req.params;
-    const { transactionId } = req.body;
+    const { groupId, transactionId } = req.params;
 
     const deletedTransaction = await GroupTransaction.findOneAndDelete({
       _id: transactionId,
@@ -322,12 +337,12 @@ export const deleteGroupTransaction = async (
     );
 
     res.status(200).json({
+      success: true,
       message: "Transaction deleted successfully",
-      deletedTransaction,
     });
   } catch (error) {
     console.error("Error deleting transactions:", error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 
@@ -360,9 +375,11 @@ export const createSettlement = async (
     ]);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
     const { groupId } = req.params;
@@ -418,16 +435,18 @@ export const settlementAction = async (
   ]);
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    res
-      .status(400)
-      .json({ message: "Invalid request", errors: errors.array() });
+    res.status(400).json({
+      success: false,
+      message: "Invalid request",
+      errors: errors.array(),
+    });
     return;
   }
   const { groupId, settlementId } = req.params;
   const { action } = req.body;
   const group = await Group.findById(groupId);
   if (!group) {
-    res.status(404).json({ message: "Group not found" });
+    res.status(404).json({ success: false, message: "Group not found" });
     return;
   }
   const updatedSettlement = await Settlements.findOneAndUpdate(
@@ -436,7 +455,9 @@ export const settlementAction = async (
     { new: true }
   );
   if (!updatedSettlement) {
-    res.status(404).json({ message: "Settlement not found in this group" });
+    res
+      .status(404)
+      .json({ success: false, message: "Settlement not found in this group" });
     return;
   }
   if (action === "completed") {
@@ -446,8 +467,8 @@ export const settlementAction = async (
     );
   }
   res.status(200).json({
+    success: true,
     message: `Settlement marked as ${action}`,
-    settlement: updatedSettlement,
   });
 };
 
@@ -466,15 +487,17 @@ export const calculateSettlement = async (
     ]);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
     const { groupId } = req.params;
     const group = await Group.findById(groupId).lean();
     if (!group) {
-      res.status(404).json({ message: "Group not found" });
+      res.status(404).json({ success: false, message: "Group not found" });
       return;
     }
     let transactions: GroupTransactionType[] = [];
@@ -508,6 +531,7 @@ export const calculateSettlement = async (
     });
     res.status(200).json({
       success: true,
+      message: "Settlement calculated successfully",
       userPayments,
     });
   } catch (error) {
@@ -536,15 +560,20 @@ export const getSettlements = async (
     if (!errors.isEmpty()) {
       res
         .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+        .json({
+          success: false,
+          message: "Invalid request",
+          errors: errors.array(),
+        });
       return;
     }
     const { groupId } = req.params;
     const settlements = await Settlements.find({ group: groupId }).lean();
     res.status(200).json({
       success: true,
+      message: "Settlements fetched successfully",
       settlements,
-    })
+    });
   } catch (error) {
     console.error("Error in calculateSettlement:", error);
     res.status(500).json({

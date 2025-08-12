@@ -44,7 +44,7 @@ function Filter({ column }: { column: Column<TransactionItemType, unknown> }) {
   return (
     <>
       <IconButton onClick={handleClick} size="small">
-        <MoreVertIcon />
+        <MoreVertIcon sx={{ color: '#1976d2' }} />
       </IconButton>
       <Popover
         open={open}

@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../models/User";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { Invitations } from "../models/Invitations";
@@ -6,10 +6,13 @@ import { Group } from "../models/Group";
 import { body, validationResult } from "express-validator";
 import { Settlements } from "../models/Settlements";
 
-export const searchUsers = async (req: Request, res: Response) => {
+export const searchUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const { username } = req.query;
-
     if (
       !username ||
       typeof username !== "string" ||
@@ -35,26 +38,28 @@ export const searchUsers = async (req: Request, res: Response) => {
     return;
   } catch (error) {
     console.error("User search error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-    return;
+    next(error);
   }
 };
 
 export const userNotifications = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     const userId = req.user._id;
-    const invitations = await Invitations.find({
-      inviteTo: userId,
-    })
+    const invitations = await Invitations.find({ inviteTo: userId })
       .populate("groupId", "groupName")
       .populate("inviteBy", "username firstname lastname");
-    const settlements = await Settlements.find({ paidTo: userId });
+    const settlements = await Settlements.find({
+      paidTo: userId,
+      status: "pending",
+    })
+      .populate("groupId", "groupName")
+      .populate("paidBy", "username firstname lastname")
+      .populate("paidTo", "username firstname lastname");
+
     res.status(200).json({
       success: true,
       invitations,
@@ -62,16 +67,14 @@ export const userNotifications = async (
     });
   } catch (error) {
     console.error("User search error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };
 
 export const inviteAction = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     await Promise.all([
@@ -94,9 +97,11 @@ export const inviteAction = async (
     // Check for any validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
     const userId = req.user._id;
@@ -119,15 +124,10 @@ export const inviteAction = async (
     res.status(200).json({
       success: true,
       message:
-        status === "accept"
-          ? "User added to group"
-          : "Invitation rejected",
+        status === "accept" ? "User added to group" : "Invitation rejected",
     });
   } catch (error) {
     console.error("User search error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };

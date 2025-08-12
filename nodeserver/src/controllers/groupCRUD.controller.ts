@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { Group } from "../models/Group";
 import { param, body, validationResult } from "express-validator";
@@ -6,7 +6,11 @@ import { Settlements } from "../models/Settlements";
 import { Invitations } from "../models/Invitations";
 import { GroupTransaction } from "../models/GroupTransaction";
 
-export const createGroup = async (req: AuthenticatedRequest, res: Response) => {
+export const createGroup = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     await Promise.all([
       body("groupName")
@@ -60,14 +64,15 @@ export const createGroup = async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (error) {
     console.error("Error creating group:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };
 
-export const getGroups = async (req: AuthenticatedRequest, res: Response) => {
+export const getGroups = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const userId = req.user._id as string;
     const groups = await Group.aggregate([
@@ -93,55 +98,64 @@ export const getGroups = async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching all groups:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };
 
-export const deleteGroup = async (req: AuthenticatedRequest, res: Response) => {
-  await param("groupId")
-    .notEmpty()
-    .withMessage("Group ID is required")
-    .isMongoId()
-    .withMessage("Group ID must be a valid MongoDB ID")
-    .run(req);
+export const deleteGroup = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await param("groupId")
+      .notEmpty()
+      .withMessage("Group ID is required")
+      .isMongoId()
+      .withMessage("Group ID must be a valid MongoDB ID")
+      .run(req);
 
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    res
-      .status(400)
-      .json({ message: "Invalid request", errors: errors.array() });
-    return;
-  }
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res
+        .status(400)
+        .json({ message: "Invalid request", errors: errors.array() });
+      return;
+    }
 
-  const { groupId } = req.params;
-  const userId = req.user._id;
-  const deletedGroup = await Group.findOneAndDelete({
-    _id: groupId,
-    createdBy: userId,
-  });
-  if (!deletedGroup) {
-    res.status(404).json({
-      success: false,
-      message: "Group not found or you are not authorized to delete it.",
+    const { groupId } = req.params;
+    const userId = req.user._id;
+    const deletedGroup = await Group.findOneAndDelete({
+      _id: groupId,
+      createdBy: userId,
     });
-    return;
+    if (!deletedGroup) {
+      res.status(404).json({
+        success: false,
+        message: "Group not found or you are not authorized to delete it.",
+      });
+      return;
+    }
+    await Promise.all([
+      GroupTransaction.deleteMany({ group: groupId }),
+      Invitations.deleteMany({ group: groupId }),
+      Settlements.deleteMany({ group: groupId }),
+    ]);
+    res.status(200).json({
+      success: true,
+      message: "Group and all related data deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Error deleting group:", error);
+    next(error);
   }
-  await Promise.all([
-    GroupTransaction.deleteMany({ group: groupId }),
-    Invitations.deleteMany({ group: groupId }),
-    Settlements.deleteMany({ group: groupId }),
-  ]);
-  res.status(200).json({
-    success: true,
-    message: "Group and all related data deleted successfully.",
-  });
-  return;
 };
 
-export const getGroup = async (req: AuthenticatedRequest, res: Response) => {
+export const getGroup = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     await Promise.all([
       param("groupId")
@@ -187,14 +201,15 @@ export const getGroup = async (req: AuthenticatedRequest, res: Response) => {
     });
   } catch (error) {
     console.error("Error fetching Group:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };
 
-export const addMember = async (req: AuthenticatedRequest, res: Response) => {
+export const addMember = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     await Promise.all([
       param("groupId")
@@ -216,9 +231,11 @@ export const addMember = async (req: AuthenticatedRequest, res: Response) => {
     // Check for any validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
 
@@ -231,7 +248,7 @@ export const addMember = async (req: AuthenticatedRequest, res: Response) => {
         success: false,
         message: "You are not authorized to add members to this group",
       });
-      return
+      return;
     }
     await Promise.all(
       (members as string[]).map((member) =>
@@ -244,20 +261,18 @@ export const addMember = async (req: AuthenticatedRequest, res: Response) => {
     );
     res.status(201).json({
       success: true,
-      message: "An invitation has been sent",
+      message: "All invitations have been sent",
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-      error,
-    });
+    console.error("Error adding members:", error);
+    next(error);
   }
 };
 
 export const removeMember = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     await Promise.all([
@@ -298,17 +313,14 @@ export const removeMember = async (
     });
   } catch (error) {
     console.error("Error in removeMember:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-    return;
+    next(error);
   }
 };
 
 export const updateGroupName = async (
   req: AuthenticatedRequest,
-  res: Response
+  res: Response,
+  next: NextFunction
 ) => {
   try {
     await Promise.all([
@@ -326,9 +338,11 @@ export const updateGroupName = async (
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
 
@@ -350,9 +364,6 @@ export const updateGroupName = async (
     });
   } catch (error) {
     console.error("Error adding settlement to group:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
+    next(error);
   }
 };

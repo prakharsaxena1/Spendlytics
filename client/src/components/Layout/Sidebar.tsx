@@ -4,7 +4,6 @@ import List from "@mui/material/List";
 import NavItem from "./NavItem";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PaidIcon from "@mui/icons-material/Paid";
-import PieChart from "@mui/icons-material/PieChart";
 import GroupsIcon from "@mui/icons-material/Groups";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
@@ -57,12 +56,6 @@ const Sidebar = () => {
           path="groups"
           icon={<GroupsIcon />}
           navName="Groups"
-          isCollapsed={collapsed}
-        />
-        <NavItem
-          path="money-plans"
-          icon={<PieChart />}
-          navName="Money Plans"
           isCollapsed={collapsed}
         />
       </List>

@@ -24,13 +24,10 @@ export const AuthApis = baseApi.injectEndpoints({
       }),
     }),
     logout: build.mutation<LogoutResponse, null>({
-      query: () => ({
-        url: "/auth/logout",
-        method: "GET",
-      }),
+      query: () => "/auth/logout",
     }),
     getCurrentUser: build.query<GetCurrentUserResponse, void>({
-      query: () => '/auth/me',
+      query: () => "/auth/me",
     }),
   }),
 });

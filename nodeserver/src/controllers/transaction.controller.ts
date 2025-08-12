@@ -1,12 +1,13 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { ITransaction, Transaction } from "../models/Transaction"; // Adjust the path as needed
 import { body, param, validationResult } from "express-validator";
 import { AuthenticatedRequest } from "../middleware/auth";
 
 export const createTransaction = async (
   req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Validate request body fields using express-validator
     await Promise.all([
@@ -61,38 +62,36 @@ export const createTransaction = async (
     });
   } catch (error) {
     console.error("Error creating transaction:", error);
-    res.status(500).json({ message: "Server error", transaction: null });
-    return;
+    next(error);
   }
 };
 
 export const getTransactions = async (
   req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const transactions = await Transaction.find({ userId: req.user._id }).sort({
       transactionDate: -1,
       createdBy: -1,
     });
-
-    // Respond with the fetched transactions.
     res.status(200).json({
+      success: true,
       message: "Transactions fetched successfully",
       transactions,
     });
-    return;
   } catch (error) {
     console.error("Error fetching transactions:", error);
-    res.status(500).json({ message: "Server error", transactions: [] });
-    return;
+    next(error);
   }
 };
 
 export const updateTransaction = async (
   req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // Validate the URL param and body fields.
     await Promise.all([
@@ -128,9 +127,11 @@ export const updateTransaction = async (
     // Check for any validation errors.
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
 
@@ -146,6 +147,7 @@ export const updateTransaction = async (
       category === undefined
     ) {
       res.status(400).json({
+        success: false,
         message:
           "No update fields provided. Please provide at least one field to update.",
       });
@@ -178,35 +180,31 @@ export const updateTransaction = async (
       { $set: updateFields },
       { new: true, runValidators: true }
     );
-
-    // If a transaction isn't found, return a 404 error.
     if (!updatedTransaction) {
       res.status(404).json({
+        success: false,
         message:
           "Transaction not found for the provided user and transaction ID",
       });
       return;
     }
-
-    // Respond with the updated transaction.
     res.status(200).json({
+      success: true,
       message: "Transaction updated successfully",
       transaction: updatedTransaction,
     });
-    return;
   } catch (error) {
     console.error("Error updating transaction:", error);
-    res.status(500).json({ message: "Server error" });
-    return;
+    next(error);
   }
 };
 
 export const deleteTransaction = async (
   req: AuthenticatedRequest,
-  res: Response
-): Promise<void> => {
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    // Validate that userId and transactionId are provided in the request body and are valid MongoDB ObjectIds.
     await Promise.all([
       param("transactionId")
         .notEmpty()
@@ -215,44 +213,35 @@ export const deleteTransaction = async (
         .withMessage("Invalid transaction ID")
         .run(req),
     ]);
-
-    // Check for any validation errors.
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res
-        .status(400)
-        .json({ message: "Invalid request", errors: errors.array() });
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
       return;
     }
-
-    // Extract the transactionId from the request body.
     const { transactionId } = req.params;
-
-    // Attempt to find and delete the transaction that matches both userId and transactionId.
     const deletedTransaction = await Transaction.findOneAndDelete({
       _id: transactionId,
       userId: req.user._id,
     });
-
     if (!deletedTransaction) {
       res.status(404).json({
+        success: false,
         message:
           "Transaction not found for the provided user and transaction ID",
       });
       return;
     }
-
-    // Respond with success and the deleted transaction.
     res.status(200).json({
+      success: true,
       message: "Transaction deleted successfully",
       transaction: deletedTransaction,
     });
-    return;
   } catch (error) {
     console.error("Error deleting transaction:", error);
-    res.status(500).json({
-      message: "Server error",
-    });
-    return;
+    next(error);
   }
 };

@@ -61,8 +61,30 @@ export type CreateGroupRequest = {
   members: string[];
 };
 
-export type UpdateGroupRequest = {
+export type AddGroupMembersRequest = {
+  groupId: string;
   members: string[];
+};
+
+export type AddGroupMembersResponse = {
+  success: boolean;
+  message: string;
+};
+
+export type RemoveGroupMemberRequest = {
+  groupId: string;
+  member: string;
+};
+
+export type RemoveGroupMemberResponse = {
+  success: boolean;
+  message: string;
+  group: CreateGroupResponse["group"];
+};
+
+export type UpdateGroupNameRequest = {
+  groupId: string;
+  groupName: string;
 };
 
 export type DeleteGroupRequest = GroupDetailsRequest;
@@ -70,41 +92,4 @@ export type DeleteGroupRequest = GroupDetailsRequest;
 export type DeleteGroupResponse = {
   success: boolean;
   message: string;
-};
-
-export type CreateGroupTransactionResponse = {
-  message: string;
-  transaction: {
-    amount: number;
-    transactionDate: string;
-    note: string;
-    userId: string;
-    groupId: string;
-    splitType: "percentage" | "value";
-    splitDetails: {
-      [userId: string]: number;
-    };
-  };
-  updatedGroup: {
-    unsettledAmount: number;
-    groupName: string;
-    members: string[];
-    createdBy: string;
-    totalExpense: number;
-    isSettled: boolean;
-    lastSettledAt: Date | null;
-    createdAt: Date;
-    updatedAt: Date;
-  };
-};
-
-export type CreateGroupTransactionRequest = {
-  amount: number;
-  transactionDate: string;
-  note: string;
-  groupId: string;
-  splitType: "percentage" | "value";
-  splitDetails: {
-    [userId: string]: number;
-  };
 };

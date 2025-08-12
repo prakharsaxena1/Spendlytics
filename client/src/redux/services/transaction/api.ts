@@ -12,10 +12,7 @@ import type {
 export const TransactionApis = baseApi.injectEndpoints({
   endpoints: (build) => ({
     transactionList: build.query<TransactionListResponse, null>({
-      query: () => ({
-        url: `/transaction`,
-        method: "GET",
-      }),
+      query: () => "/transaction",
       keepUnusedDataFor: 120,
       providesTags: ["transactionsList"],
     }),

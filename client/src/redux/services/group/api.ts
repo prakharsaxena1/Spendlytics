@@ -5,57 +5,81 @@ import type {
   GroupDetailsRequest,
   CreateGroupResponse,
   CreateGroupRequest,
-  UpdateGroupRequest,
   DeleteGroupRequest,
   DeleteGroupResponse,
-  CreateGroupTransactionResponse,
-  CreateGroupTransactionRequest,
+  AddGroupMembersRequest,
+  RemoveGroupMemberRequest,
+  AddGroupMembersResponse,
+  RemoveGroupMemberResponse,
+  UpdateGroupNameRequest,
 } from "./types";
 
 export const GroupApis = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getAllGroups: build.query<AllGroupResponse, void>({
-      query: () => ({
-        url: '/group',
-        method: 'GET',
-      }),
-      keepUnusedDataFor: 120,
-      providesTags: ['groups']
-    }),
-    getGroupDetails: build.query<GroupDetailsResponse, GroupDetailsRequest>({
-      query: ({ id }) => ({
-        url: `/group/${id}`,
-        method: 'GET',
-      }),
-    }),
     createGroup: build.mutation<CreateGroupResponse, CreateGroupRequest>({
       query: (body) => ({
-        url: '/group',
-        method: 'POST',
-        body,
-      }),
-      invalidatesTags: ['groups']
-    }),
-    createGroupTransaction: build.mutation<CreateGroupTransactionResponse, CreateGroupTransactionRequest>({
-      query: (params) => ({
-        url: "/transaction",
+        url: "/group",
         method: "POST",
-        body: params,
-      }),
-    }),
-    updateGroup: build.mutation<GroupDetailsResponse, UpdateGroupRequest>({
-      query: (body) => ({
-        url: '/group',
-        method: 'PUT',
         body,
       }),
+      invalidatesTags: ["groups"],
+    }),
+    getAllGroups: build.query<AllGroupResponse, void>({
+      query: () => ({
+        url: "/group",
+        method: "GET",
+      }),
+      keepUnusedDataFor: 120,
+      providesTags: ["groups"],
     }),
     deleteGroup: build.mutation<DeleteGroupResponse, DeleteGroupRequest>({
       query: ({ id }) => ({
         url: `/group/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: ['groups']
+      invalidatesTags: ["groups"],
+    }),
+    getGroupDetails: build.query<GroupDetailsResponse, GroupDetailsRequest>({
+      query: ({ id }) => ({
+        url: `/group/${id}`,
+        method: "GET",
+      }),
+    }),
+    addGroupMembers: build.mutation<
+      AddGroupMembersResponse,
+      AddGroupMembersRequest
+    >({
+      query: ({ groupId, members }) => ({
+        url: `/group/${groupId}/add`,
+        method: "PUT",
+        body: {
+          members,
+        },
+      }),
+    }),
+    removeGroupMember: build.mutation<
+      RemoveGroupMemberResponse,
+      RemoveGroupMemberRequest
+    >({
+      query: ({ groupId, member }) => ({
+        url: `/group/${groupId}/remove`,
+        method: "PUT",
+        body: {
+          member,
+        },
+      }),
+    }),
+    updateGroupName: build.mutation<
+      RemoveGroupMemberResponse,
+      UpdateGroupNameRequest
+    >({
+      query: ({ groupId, groupName }) => ({
+        url: `/group/${groupId}`,
+        method: "PUT",
+        body: {
+          groupName,
+        },
+      }),
     }),
   }),
 });

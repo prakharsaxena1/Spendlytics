@@ -23,6 +23,28 @@ export type InvitationType = {
   updatedAt: string;
 };
 
+export type SettlementType = {
+  groupId: {
+    _id: string;
+    groupName: string;
+  };
+  paidBy: {
+    _id: string;
+    username: string;
+    firstname: string;
+    lastname: string;
+  };
+  paidTo: {
+    _id: string;
+    username: string;
+    firstname: string;
+    lastname: string;
+  };
+  amount: number;
+  status: string;
+  note: string;
+};
+
 export type SearchMemberResponse = {
   success: boolean;
   users: MemberType[];
@@ -35,6 +57,7 @@ export type SearchMemberRequest = {
 export type NotificationsResponse = {
   success: boolean;
   invitations: InvitationType[];
+  settlements: SettlementType[];
 };
 
 export type InviteActionResponse = {
@@ -43,8 +66,7 @@ export type InviteActionResponse = {
 };
 
 export type InviteActionRequest = {
-  status: 'accept' | 'reject';
+  status: "accept" | "reject";
   invitationId: string;
   groupId: string;
 };
-
