@@ -14,11 +14,13 @@ import {
   getGroupTransactions,
   editGroupTransaction,
   deleteGroupTransaction,
+} from "../controllers/groupTransactions.controller";
+import {
   calculateSettlement,
   createSettlement,
   settlementAction,
   getSettlements,
-} from "../controllers/groupTransactions.controller";
+} from "../controllers/groupSettlements.controller";
 
 const router = express.Router();
 

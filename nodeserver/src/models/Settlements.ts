@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface ISettlements extends Document {
-  groupId: mongoose.Types.ObjectId;
+  group: mongoose.Types.ObjectId;
   paidBy: mongoose.Types.ObjectId;
   paidTo: mongoose.Types.ObjectId;
   amount: number;
@@ -11,7 +11,7 @@ export interface ISettlements extends Document {
 
 const SettlementsSchema = new Schema<ISettlements>(
   {
-    groupId: { type: Schema.Types.ObjectId, ref: "Group", required: true },
+    group: { type: Schema.Types.ObjectId, ref: "Group", required: true },
     paidBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
     paidTo: { type: Schema.Types.ObjectId, ref: "User", required: true },
     amount: { type: Number, required: true, min: 0 },

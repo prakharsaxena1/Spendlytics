@@ -5,7 +5,7 @@ export type GroupTransactionType = {
   transactionDate: Date;
   note: string;
   userId: mongoose.Types.ObjectId;
-  groupId: mongoose.Types.ObjectId;
+  group: mongoose.Types.ObjectId;
   splitType: "percentage" | "value";
   splitDetails: {
     [userId: string]: number;
@@ -20,7 +20,7 @@ const GroupTransactionSchema = new Schema<IGroupTransaction>(
     transactionDate: { type: Date, required: true },
     note: { type: String, default: '' },
     userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    groupId: { type: Schema.Types.ObjectId, ref: "Group", required: true },
+    group: { type: Schema.Types.ObjectId, ref: "Group", required: true },
     splitType: { type: String, enum: ["percentage", "value"], default: "value" },
     splitDetails: { type: Map, of: Number, default: {} },
   },

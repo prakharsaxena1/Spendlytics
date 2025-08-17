@@ -23,14 +23,14 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
       AddGroupTransactionRequest
     >({
       query: ({ groupId, ...body }) => ({
-        url: `/${groupId}/transaction`,
+        url: `/group/${groupId}/transaction`,
         method: "POST",
         body,
       }),
     }),
     getGroupTransactions: build.query<GetGroupTransactionsResponse, string>({
       query: (groupId) => ({
-        url: `/${groupId}/transaction`,
+        url: `/group/${groupId}/transaction`,
         method: "GET",
       }),
     }),
@@ -39,7 +39,7 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
       EditGroupTransactionRequest
     >({
       query: ({ groupId, transactionId, ...body }) => ({
-        url: `/${groupId}/transaction/${transactionId}`,
+        url: `/group/${groupId}/transaction/${transactionId}`,
         method: "PUT",
         body,
       }),
@@ -49,7 +49,7 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
       DeleteGroupTransactionRequest
     >({
       query: ({ groupId, transactionId }) => ({
-        url: `/${groupId}/transaction/${transactionId}`,
+        url: `/group/${groupId}/transaction/${transactionId}`,
         method: "DELETE",
       }),
     }),
@@ -58,7 +58,7 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
       CalculateSettlementRequest
     >({
       query: (groupId) => ({
-        url: `/${groupId}/settlement`,
+        url: `/group/${groupId}/settlement`,
         method: "GET",
       }),
     }),
@@ -67,7 +67,7 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
       CreateSettlementRequest
     >({
       query: ({ groupId, ...body }) => ({
-        url: `/${groupId}/settlement`,
+        url: `/group/${groupId}/settlement`,
         method: "POST",
         body,
       }),
@@ -77,14 +77,14 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
       SettlementActionRequest
     >({
       query: ({ groupId, settlementId, ...body }) => ({
-        url: `/${groupId}/settlement/${settlementId}`,
+        url: `/group/${groupId}/settlement/${settlementId}`,
         method: "PUT",
         body,
       }),
     }),
     getSettlements: build.query<GetSettlementsResponse, string>({
       query: (groupId) => ({
-        url: `/${groupId}/settlement`,
+        url: `/group/${groupId}/settlement`,
         method: "GET",
       }),
     }),

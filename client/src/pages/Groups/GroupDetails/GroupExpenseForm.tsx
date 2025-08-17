@@ -13,10 +13,7 @@ import FormInput from "../../../components/common/FormInput";
 import { Divider } from "@mui/material";
 import type { MemberType } from "../../../redux/services/user";
 import { TODAY } from "../../../constants/constants";
-import {
-  GroupApis,
-  type CreateGroupTransactionRequest,
-} from "../../../redux/services/group";
+import { GroupTransactionApis, type AddGroupTransactionRequest } from "../../../redux/services/group";
 
 type SplitAmountBoxProps = {
   value: number;
@@ -72,7 +69,7 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
   const [split, setSplit] = useState<Record<string, number>>({});
 
   const [createGroupTransactionTrigger, { isLoading }] =
-    GroupApis.useCreateGroupTransactionMutation();
+    GroupTransactionApis.useAddGroupTransactionMutation();
 
   // initialize split slots when members change
   useEffect(() => {
@@ -100,10 +97,10 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
   }, [selectedSplitType, total, numericAmount]);
 
   const handleSubmit = () => {
-    const transactionObj: CreateGroupTransactionRequest = {
+    const transactionObj: AddGroupTransactionRequest = {
+      groupId,
       amount: Number(amount),
       transactionDate,
-      groupId: groupId,
       splitType: selectedSplitType,
       splitDetails: split,
       note,

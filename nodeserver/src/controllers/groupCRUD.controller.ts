@@ -52,7 +52,7 @@ export const createGroup = async (
         Invitations.create({
           inviteBy: createdBy,
           inviteTo: member,
-          groupId: newGroup._id,
+          group: newGroup._id,
         })
       )
     );
@@ -173,16 +173,10 @@ export const getGroup = async (
       return;
     }
     const { groupId } = req.params;
-    const group = await Group.findById(groupId).populate(
-      "members",
-      "username firstname lastname level"
-    );
-
-    const transactions = await GroupTransaction.find({ groupId });
-    const invitedMembers = await Invitations.find({ groupId })
-      .select("_id inviteBy inviteTo groupId")
-      .populate("inviteTo", "username firstname lastname");
-    const settlements = await Settlements.find({ groupId });
+    const group = await Group.findOne({
+      _id: groupId,
+      $or: [{ createdBy: req.user._id }, { members: req.user._id }],
+    }).populate("members", "username firstname lastname level");
 
     if (!group) {
       res.status(404).json({
@@ -191,13 +185,17 @@ export const getGroup = async (
       });
       return;
     }
-
+    // const transactions = await GroupTransaction.find({ group: groupId });
+    const invitedMembers = await Invitations.find({ group: groupId })
+      .select("_id inviteBy inviteTo group")
+      .populate("inviteTo", "username firstname lastname");
+    // const settlements = await Settlements.find({ group: groupId });
     res.status(200).json({
       success: true,
       group,
       invitedMembers,
-      transactions,
-      settlements,
+      // transactions,
+      // settlements,
     });
   } catch (error) {
     console.error("Error fetching Group:", error);
@@ -228,7 +226,6 @@ export const addMember = async (
         .run(req),
     ]);
 
-    // Check for any validation errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res.status(400).json({
@@ -241,27 +238,61 @@ export const addMember = async (
 
     const { members } = req.body;
     const { groupId } = req.params;
-    const createdBy = req.user._id;
-    const group = await Group.findById(groupId);
-    if (group.createdBy.toString() !== groupId) {
+    const createdBy = req.user._id.toString();
+
+    const group = await Group.findById(groupId).lean();
+    if (!group) {
+      res.status(404).json({ success: false, message: "Group not found" });
+      return;
+    }
+
+    if (group.createdBy.toString() !== createdBy) {
       res.status(401).json({
         success: false,
         message: "You are not authorized to add members to this group",
       });
       return;
     }
-    await Promise.all(
-      (members as string[]).map((member) =>
-        Invitations.create({
-          inviteBy: createdBy,
-          inviteTo: member,
-          groupId,
-        })
-      )
+
+    // Existing group members
+    const existingMemberIds = group.members.map((m) => m.toString());
+
+    // Check for existing invitations for this group
+    const existingInvites = await Invitations.find({
+      group: groupId,
+      inviteTo: { $in: members },
+    }).lean();
+
+    const alreadyInvitedIds = existingInvites.map((inv) =>
+      inv.inviteTo.toString()
     );
+
+    // Filter: not in group & not already invited
+    const eligibleMembers = (members as string[]).filter(
+      (memberId) =>
+        !existingMemberIds.includes(memberId) &&
+        !alreadyInvitedIds.includes(memberId)
+    );
+
+    if (eligibleMembers.length === 0) {
+      res.status(200).json({
+        success: true,
+        message: "No new members to invite",
+      });
+      return;
+    }
+
+    await Invitations.insertMany(
+      eligibleMembers.map((member) => ({
+        inviteBy: createdBy,
+        inviteTo: member,
+        group: groupId,
+      }))
+    );
+
     res.status(201).json({
       success: true,
-      message: "All invitations have been sent",
+      message: `Invitations sent to ${eligibleMembers.length} new member(s)`,
     });
   } catch (error) {
     console.error("Error adding members:", error);
@@ -295,10 +326,10 @@ export const removeMember = async (
     await Invitations.deleteMany({
       inviteTo: member,
       inviteBy: userId,
-      groupId,
+      group: groupId,
     });
 
-    const updatedGroup = await Group.findByIdAndUpdate(
+    await Group.findByIdAndUpdate(
       groupId,
       { $pull: { members: member } },
       { new: true }
@@ -309,7 +340,6 @@ export const removeMember = async (
     res.status(200).json({
       success: true,
       message: "Member removed",
-      group: updatedGroup,
     });
   } catch (error) {
     console.error("Error in removeMember:", error);
@@ -349,18 +379,22 @@ export const updateGroupName = async (
     const { groupId } = req.params;
     const { groupName } = req.body;
 
-    const updatedGroup = await Group.findOneAndUpdate(
-      { groupId, createdBy: req.user._id },
+    const group = await Group.findOneAndUpdate(
+      { _id: groupId, createdBy: req.user._id },
       { groupName },
       { new: true, runValidators: true }
-    )
-      .populate("members", "username firstname lastname email level")
-      .lean();
-
+    ).populate("members", "username firstname lastname email level");
+    if (!group) {
+      res.status(401).json({
+        success: false,
+        message: "Group not found",
+      });
+      return;
+    }
     res.status(200).json({
       success: true,
       message: "Group name updated",
-      group: updatedGroup,
+      group,
     });
   } catch (error) {
     console.error("Error adding settlement to group:", error);

@@ -34,7 +34,7 @@ const ChartCard: React.FC<ChartCardProps> = ({
   idealKey,
   title,
 }) => (
-  <Paper sx={{ p: 2, flex: 1 }} elevation={3}>
+  <Paper sx={{ p: 2, flex: 1 }} elevation={2}>
     <Typography variant="h6" gutterBottom>
       {title}
     </Typography>

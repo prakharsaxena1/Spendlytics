@@ -11,9 +11,13 @@ import Loader from "../../components/common/Loader";
 const LandingPage: React.FC = () => {
   const featuresRef = useRef(null);
   const howItWorksRef = useRef(null);
-  const {isLoading} = AuthApis.useGetCurrentUserQuery();
+  const { isLoading } = AuthApis.useGetCurrentUserQuery();
   if (isLoading) {
-    return <Loader />;
+    return (
+      <Box sx={{ inset: 0, position: "absolute" }}>
+        <Loader />
+      </Box>
+    );
   }
 
   return (
