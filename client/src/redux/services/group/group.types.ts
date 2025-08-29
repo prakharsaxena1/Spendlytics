@@ -1,8 +1,6 @@
-import type { TransactionItemType } from "../transaction/types";
 import type { MemberType } from "../user";
 
-export type AllGroupResponse = {
-  success: boolean;
+export type AllGroupResponse = CommonResponse & {
   groups: {
     _id: string;
     groupName: string;
@@ -13,9 +11,7 @@ export type AllGroupResponse = {
     memberCount: number;
   }[];
 };
-
-export type GroupDetailsResponse = {
-  success: boolean;
+export type GroupDetailsResponse = CommonResponse & {
   group: {
     _id: string;
     groupName: string;
@@ -27,7 +23,6 @@ export type GroupDetailsResponse = {
     createdAt: string;
     updatedAt: string;
   };
-  transactions: TransactionItemType[];
   invitedMembers: {
     _id: string;
     inviteBy: string;
@@ -37,24 +32,10 @@ export type GroupDetailsResponse = {
 };
 
 export type GroupDetailsRequest = {
-  id: string;
+  groupId: string;
 };
 
-export type CreateGroupResponse = {
-  success: boolean;
-  message: string;
-  group: {
-    groupName: string;
-    members: string[];
-    createdBy: string;
-    totalExpense: number;
-    isSettled: boolean;
-    lastSettledAt: string;
-    _id: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-};
+export type CreateGroupResponse = CommonResponse;
 
 export type CreateGroupRequest = {
   groupName: string;
@@ -66,21 +47,14 @@ export type AddGroupMembersRequest = {
   members: string[];
 };
 
-export type AddGroupMembersResponse = {
-  success: boolean;
-  message: string;
-};
+export type AddGroupMembersResponse = CommonResponse;
 
 export type RemoveGroupMemberRequest = {
   groupId: string;
   member: string;
 };
 
-export type RemoveGroupMemberResponse = {
-  success: boolean;
-  message: string;
-  group: CreateGroupResponse["group"];
-};
+export type RemoveGroupMemberResponse = CommonResponse;
 
 export type UpdateGroupNameRequest = {
   groupId: string;
@@ -89,7 +63,4 @@ export type UpdateGroupNameRequest = {
 
 export type DeleteGroupRequest = GroupDetailsRequest;
 
-export type DeleteGroupResponse = {
-  success: boolean;
-  message: string;
-};
+export type DeleteGroupResponse = CommonResponse;

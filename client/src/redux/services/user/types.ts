@@ -15,7 +15,7 @@ export type InvitationType = {
     lastname: string;
   };
   inviteTo: string;
-  groupId: {
+  group: {
     _id: string;
     groupName: string;
   };

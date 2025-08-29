@@ -8,21 +8,31 @@ import MenuItem from "@mui/material/MenuItem";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PriceCheckIcon from "@mui/icons-material/PriceCheck";
-import SlideupDialog from "../../../components/common/SlideupDialog";
 import { Button, DialogActions, Stack, Typography } from "@mui/material";
-import FormInput from "../../../components/common/FormInput";
+import { useNavigate, useParams } from "react-router-dom";
+import { GroupApis } from "../../../../redux/services/group";
+import SlideupDialog from "../../../../components/common/SlideupDialog";
+import FormInput from "../../../../components/common/FormInput";
 
 type GroupOptionsProps = {
   anchorEl: null | HTMLElement;
   handleCloseMenu: () => void;
 };
 
-const GroupOptions: React.FC<GroupOptionsProps> = ({ anchorEl, handleCloseMenu }) => {
+const GroupOptions: React.FC<GroupOptionsProps> = ({
+  anchorEl,
+  handleCloseMenu,
+}) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [changeNameDialogOpen, setChangeNameDialogOpen] = useState(false);
 
   const [name, setName] = useState("");
   const [errorName, setErrorName] = useState(false);
+
+  const [deleteTrigger] = GroupApis.useDeleteGroupMutation();
+  const [groupNameTrigger] = GroupApis.useUpdateGroupNameMutation();
 
   // Change name
   const handleOpenChangeNameDialog = () => {
@@ -37,26 +47,35 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ anchorEl, handleCloseMenu }
   };
 
   const handleChangeNameSubmit = () => {
+    if (!id) return;
     if (name.trim() === "") {
       setErrorName(true);
     } else {
+      groupNameTrigger({ groupId: id, groupName: name })
+        .unwrap()
+        .then(() => {
+          setErrorName(false);
+          setName("");
+          handleCloseChangeNameDialog();
+        });
       // After api call
-      setErrorName(false);
-      setName("");
-      handleCloseChangeNameDialog();
     }
   };
 
   // Delete
   const handleOpenDeleteDialog = () => {
     setDeleteDialogOpen(true);
+    handleCloseMenu();
   };
   const handleCloseDeleteDialog = () => {
     setDeleteDialogOpen(false);
   };
   const handleDeleteGroup = () => {
-    handleOpenDeleteDialog();
-    handleCloseMenu();
+    if (!id) return;
+    deleteTrigger({ groupId: id }).then(() => {
+      handleCloseDeleteDialog();
+      navigate("/app/groups", { replace: true });
+    });
   };
 
   return (
@@ -88,7 +107,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ anchorEl, handleCloseMenu }
               </ListItemIcon>
               <ListItemText>Change name</ListItemText>
             </MenuItem>
-            <MenuItem onClick={handleDeleteGroup}>
+            <MenuItem onClick={handleOpenDeleteDialog}>
               <ListItemIcon>
                 <DeleteIcon />
               </ListItemIcon>
@@ -138,7 +157,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({ anchorEl, handleCloseMenu }
           <Button color="inherit" onClick={handleCloseDeleteDialog}>
             No
           </Button>
-          <Button color="inherit" onClick={handleOpenDeleteDialog}>
+          <Button color="inherit" onClick={handleDeleteGroup}>
             Yes
           </Button>
         </DialogActions>

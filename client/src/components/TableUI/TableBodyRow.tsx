@@ -1,13 +1,13 @@
-import { flexRender, type Row } from '@tanstack/react-table';
-import React from 'react'
-import { TableCell, TableRow } from '@mui/material';
-import type { TransactionItemType } from '../../redux/services/transaction/types';
+import { flexRender, type Row } from "@tanstack/react-table";
+import React from "react";
+import { TableCell, TableRow } from "@mui/material";
+import type { TransactionItemType } from "../../redux/services/transaction/types";
 
 type TableBodyRowProps = {
-  row: Row<TransactionItemType>
+  row: Row<TransactionItemType>;
 };
 
-const TableBodyRow: React.FC<TableBodyRowProps> = React.memo(({ row }) => {
+const TableBodyRow: React.FC<TableBodyRowProps> = ({ row }) => {
   return (
     <TableRow>
       {row.getVisibleCells().map(({ id, column, getContext }) => (
@@ -17,6 +17,6 @@ const TableBodyRow: React.FC<TableBodyRowProps> = React.memo(({ row }) => {
       ))}
     </TableRow>
   );
-});
+};
 
-export default TableBodyRow
+export default TableBodyRow;

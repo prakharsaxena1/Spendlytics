@@ -8,15 +8,10 @@ type GroupTransaction = {
   };
 };
 
-type CommonResponse = {
-  success: boolean;
-  message: string;
-};
-
 export type AddGroupTransactionRequest = { groupId: string } & GroupTransaction;
 
 export type AddGroupTransactionResponse = CommonResponse & {
-  transaction: { userId: string; groupId: string } & GroupTransaction;
+  transaction: { _id: string; userId: string; group: string } & GroupTransaction;
   updatedGroup: {
     unsettledAmount: number;
     groupName: string;
@@ -85,3 +80,5 @@ export type GetSettlementsResponse = CommonResponse & {
     updatedAt: string;
   }[];
 };
+
+export type GroupTransactionFullType = AddGroupTransactionResponse["transaction"]

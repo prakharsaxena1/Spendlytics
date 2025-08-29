@@ -12,7 +12,7 @@ import type {
   AddGroupMembersResponse,
   RemoveGroupMemberResponse,
   UpdateGroupNameRequest,
-} from "./types";
+} from "./group.types";
 
 export const GroupApis = baseApi.injectEndpoints({
   endpoints: (build) => ({
@@ -33,22 +33,20 @@ export const GroupApis = baseApi.injectEndpoints({
       providesTags: ["groups"],
     }),
     deleteGroup: build.mutation<DeleteGroupResponse, DeleteGroupRequest>({
-      query: ({ id }) => ({
-        url: `/group/${id}`,
+      query: ({ groupId }) => ({
+        url: `/group/${groupId}`,
         method: "DELETE",
       }),
       invalidatesTags: ["groups"],
     }),
     getGroupDetails: build.query<GroupDetailsResponse, GroupDetailsRequest>({
-      query: ({ id }) => ({
-        url: `/group/${id}`,
+      query: ({ groupId }) => ({
+        url: `/group/${groupId}`,
         method: "GET",
       }),
+      providesTags: ["group-details"],
     }),
-    addGroupMembers: build.mutation<
-      AddGroupMembersResponse,
-      AddGroupMembersRequest
-    >({
+    addGroupMembers: build.mutation<AddGroupMembersResponse, AddGroupMembersRequest>({
       query: ({ groupId, members }) => ({
         url: `/group/${groupId}/add`,
         method: "PUT",
@@ -56,11 +54,9 @@ export const GroupApis = baseApi.injectEndpoints({
           members,
         },
       }),
+      invalidatesTags: ["group-details"]
     }),
-    removeGroupMember: build.mutation<
-      RemoveGroupMemberResponse,
-      RemoveGroupMemberRequest
-    >({
+    removeGroupMember: build.mutation<RemoveGroupMemberResponse, RemoveGroupMemberRequest>({
       query: ({ groupId, member }) => ({
         url: `/group/${groupId}/remove`,
         method: "PUT",
@@ -68,11 +64,9 @@ export const GroupApis = baseApi.injectEndpoints({
           member,
         },
       }),
+      invalidatesTags: ["group-details"]
     }),
-    updateGroupName: build.mutation<
-      RemoveGroupMemberResponse,
-      UpdateGroupNameRequest
-    >({
+    updateGroupName: build.mutation<RemoveGroupMemberResponse, UpdateGroupNameRequest>({
       query: ({ groupId, groupName }) => ({
         url: `/group/${groupId}`,
         method: "PUT",
@@ -80,6 +74,7 @@ export const GroupApis = baseApi.injectEndpoints({
           groupName,
         },
       }),
+      invalidatesTags: ["group-details", "groups"]
     }),
   }),
 });

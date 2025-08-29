@@ -1,11 +1,11 @@
 import React from "react";
-import type { MemberType } from "../../redux/services/user";
 import IconButton from "@mui/material/IconButton";
 import Close from "@mui/icons-material/Close";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
+import type { MemberType } from "../../../../redux/services/user";
 
 type MemberItemProps = {
   member: MemberType;

@@ -1,30 +1,28 @@
-import React, { useEffect, useState } from "react";
-import Divider from "@mui/material/Divider";
+import React, { useState } from "react";
+import Button from "@mui/material/Button";
+import ButtonBase from "@mui/material/ButtonBase";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useParams } from "react-router-dom";
-import { Button, ButtonBase } from "@mui/material";
 import MoreVert from "@mui/icons-material/MoreVert";
 import AddIcon from "@mui/icons-material/Add";
 import GroupIcon from "@mui/icons-material/Group";
-import Options from "./Options";
-import Members from "./Members";
-import { GroupApis } from "../../../redux/services/group";
-import { useAppSelector } from "../../../redux/hooks";
-import { CurrentUserSelector } from "../../../redux/slices/auth/selector";
+import Options from "./Header/GroupOptions";
+import GroupMembers from "./Header/GroupMembers";
 import FormSlideupDialog from "../../../components/common/FormSlideupDialog";
 import GroupExpenseForm from "./GroupExpenseForm";
+import { useGroupContext } from "../GroupContext";
+import { CurrentUserSelector } from "../../../redux/slices/auth/selector";
+import { useAppSelector } from "../../../redux/hooks";
 
-const GroupDetails: React.FC = () => {
-  const { id } = useParams();
+const GroupHeader: React.FC = () => {
+  const { group } = useGroupContext();
   const user = useAppSelector(CurrentUserSelector);
+
   const [openCreateGroupExpense, setOpenCreateGroupExpense] = useState(false);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [anchorElMembers, setAnchorElMembers] = useState<null | HTMLElement>(
     null
   );
-  const [GroupDetailTrigger, { data }] =
-    GroupApis.useLazyGetGroupDetailsQuery();
 
   const handleCloseMenu = () => {
     setAnchorEl(null);
@@ -40,49 +38,39 @@ const GroupDetails: React.FC = () => {
     setAnchorElMembers(e.currentTarget);
   };
 
-  const handleOpenCreateGroupExpenseDialog = () => {
+  const handleOpenGroupExpenseDialog = () => {
     setOpenCreateGroupExpense(true);
   };
 
-  const handleCloseCreateGroupExpenseDialog = () => {
+  const handleCloseGroupExpenseDialog = () => {
     setOpenCreateGroupExpense(false);
   };
 
-  useEffect(() => {
-    if (id) {
-      GroupDetailTrigger({ id });
-    }
-  }, [GroupDetailTrigger, id]);
-
-  if (!id) {
-    return (
-      <Stack flexGrow={1} alignItems="center" justifyContent="center">
-        <Typography variant="h4" color="textSecondary">
-          Select a group
-        </Typography>
-      </Stack>
-    );
+  if (!group) {
+    return null;
   }
 
+  const { groupName, members, createdBy } = group;
+
   return (
-    <Stack flexGrow={1}>
+    <>
       <Stack
         direction="row"
         alignItems="center"
         justifyContent="space-between"
         p={1}
       >
-        <Typography variant="h5">{data?.group?.groupName}</Typography>
+        <Typography variant="h5">{groupName}</Typography>
         <Stack direction="row" spacing={1} alignItems="center">
-          {data?.group && data.group.members.length > 1 && (
+          {members.length > 1 && (
             <Button
               startIcon={<AddIcon />}
-              variant="contained"
+              variant="text"
               size="small"
               color="inherit"
-              onClick={handleOpenCreateGroupExpenseDialog}
+              onClick={handleOpenGroupExpenseDialog}
             >
-              expense
+              Expense
             </Button>
           )}
           <ButtonBase
@@ -90,32 +78,26 @@ const GroupDetails: React.FC = () => {
             onClick={handleOpenMenuMembers}
           >
             <Stack direction="row" spacing={1} alignItems="center">
-              <Typography fontWeight={600}>
-                {data?.group.members.length}
-              </Typography>
+              <Typography fontWeight={600}>{members.length}</Typography>
               <GroupIcon />
             </Stack>
           </ButtonBase>
-          {user?._id === data?.group.createdBy && (
+          {user?._id === createdBy && (
             <ButtonBase sx={{ p: 1, borderRadius: 1 }} onClick={handleOpenMenu}>
               <MoreVert />
             </ButtonBase>
           )}
         </Stack>
       </Stack>
-      <Divider />
       {/* Popup menus */}
-      <Members
+      <GroupMembers
         anchorEl={anchorElMembers}
         handleCloseMenu={handleCloseMenuMembers}
-        groupMembers={data?.group?.members ?? []}
-        createrId={data?.group.createdBy ?? ""}
-        invitedMembers={data?.invitedMembers ?? []}
       />
       <Options anchorEl={anchorEl} handleCloseMenu={handleCloseMenu} />
       <FormSlideupDialog
         open={openCreateGroupExpense}
-        handleClose={handleCloseCreateGroupExpenseDialog}
+        handleClose={handleCloseGroupExpenseDialog}
         title={
           <Stack direction="row" spacing={1} alignItems="center">
             <AddIcon />
@@ -124,14 +106,13 @@ const GroupDetails: React.FC = () => {
         }
         content={
           <GroupExpenseForm
-            members={data?.group.members ?? []}
-            handleClose={handleCloseCreateGroupExpenseDialog}
-            groupId={id}
+            members={members}
+            handleClose={handleCloseGroupExpenseDialog}
           />
         }
       />
-    </Stack>
+    </>
   );
 };
 
-export default GroupDetails;
+export default GroupHeader;

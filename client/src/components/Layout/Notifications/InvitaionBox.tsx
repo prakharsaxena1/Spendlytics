@@ -13,14 +13,14 @@ type InvitaionBoxProps = {
 };
 
 const InvitaionBox: React.FC<InvitaionBoxProps> = ({ invitationObj }) => {
-  const { inviteBy, groupId, _id } = invitationObj;
+  const { inviteBy, group, _id } = invitationObj;
   const { firstname, lastname, username } = inviteBy;
   const [notificationTrigger, { isLoading }] =
     UserApis.useInviteActionMutation();
   const handleInvite = (status: "accept" | "reject") => {
     notificationTrigger({
       status,
-      groupId: groupId._id,
+      groupId: group._id,
       invitationId: _id,
     });
   };
@@ -32,7 +32,7 @@ const InvitaionBox: React.FC<InvitaionBoxProps> = ({ invitationObj }) => {
       <Divider />
       <Box sx={{ p: 1 }}>
         <Typography variant="body2">
-          {`${firstname} ${lastname} (@${username}) has invited you to join "${groupId.groupName}"`}
+          {`${firstname} ${lastname} (@${username}) has invited you to join "${group.groupName}"`}
         </Typography>
         <Stack
           direction="row"

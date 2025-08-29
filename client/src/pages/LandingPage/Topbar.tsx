@@ -62,6 +62,7 @@ const Topbar: React.FC<TopbarProps> = ({ featuresRef, howItWorksRef }) => {
         bgcolor: "#ECF0F1",
         pl: { xs: "0.5rem", sm: "1.5rem" },
         pr: { xs: "0.5rem", sm: "1.5rem" },
+        zIndex: 100
       }}
     >
       <Toolbar>

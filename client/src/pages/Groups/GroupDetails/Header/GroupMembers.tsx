@@ -9,29 +9,24 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import MemberItem from "./MemberItem";
-import SlideupDialog from "../../../components/common/SlideupDialog";
-import type { GroupDetailsResponse } from "../../../redux/services/group";
-import type { MemberType } from "../../../redux/services/user";
-import { useAppSelector } from "../../../redux/hooks";
-import { CurrentUserSelector } from "../../../redux/slices/auth/selector";
-import MemberAutocomplete from "../MembersAutocomplete";
+import SlideupDialog from "../../../../components/common/SlideupDialog";
+import type { MemberType } from "../../../../redux/services/user";
+import { useAppSelector } from "../../../../redux/hooks";
+import { CurrentUserSelector } from "../../../../redux/slices/auth/selector";
+import MemberAutocomplete from "../../MembersAutocomplete";
+import { useGroupContext } from "../../GroupContext";
 
 type GroupMembersProps = {
   anchorEl: null | HTMLElement;
   handleCloseMenu: () => void;
-  groupMembers: MemberType[];
-  invitedMembers: GroupDetailsResponse["invitedMembers"] | [];
-  createrId: string;
 };
 
 const GroupMembers: React.FC<GroupMembersProps> = ({
   anchorEl,
   handleCloseMenu,
-  groupMembers,
-  invitedMembers,
-  createrId,
 }) => {
   const user = useAppSelector(CurrentUserSelector);
+  const { group, invitedMembers } = useGroupContext();
 
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -66,6 +61,8 @@ const GroupMembers: React.FC<GroupMembersProps> = ({
     handleCloseMenu();
   };
 
+  const createrId = group?.createdBy
+
   return (
     <>
       <Menu
@@ -87,7 +84,7 @@ const GroupMembers: React.FC<GroupMembersProps> = ({
           </Typography>
           <Divider />
           <MenuList sx={{ p: 0, maxHeight: "480px" }}>
-            {groupMembers.map((member) => (
+            {group?.members.map((member) => (
               <MemberItem
                 key={member._id}
                 member={member}
@@ -97,7 +94,7 @@ const GroupMembers: React.FC<GroupMembersProps> = ({
                 handleDeleteGroupMember={handleDeleteGroupMember}
               />
             ))}
-            {invitedMembers.map((member) => (
+            {invitedMembers?.map((member) => (
               <MemberItem
                 key={member._id}
                 isInvited

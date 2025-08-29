@@ -13,7 +13,12 @@ import FormInput from "../../../components/common/FormInput";
 import { Divider } from "@mui/material";
 import type { MemberType } from "../../../redux/services/user";
 import { TODAY } from "../../../constants/constants";
-import { GroupTransactionApis, type AddGroupTransactionRequest } from "../../../redux/services/group";
+import {
+  GroupTransactionApis,
+  type AddGroupTransactionRequest,
+  type EditGroupTransactionResponse,
+} from "../../../redux/services/group";
+import { useParams } from "react-router-dom";
 
 type SplitAmountBoxProps = {
   value: number;
@@ -51,32 +56,45 @@ const SplitAmountBox: React.FC<SplitAmountBoxProps> = ({
 
 type GroupExpenseFormProps = {
   members: MemberType[];
-  groupId: string;
   handleClose: () => void;
+  transaction?: EditGroupTransactionResponse["transaction"];
 };
 
 const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
   members,
-  groupId,
   handleClose,
+  transaction,
 }) => {
-  const [amount, setAmount] = useState<string>("0");
-  const [transactionDate, setTransactionDate] = useState<string>(TODAY);
+  const { id } = useParams();
+  const [amount, setAmount] = useState<string>(
+    transaction?.amount.toString() ?? "0"
+  );
+  const [transactionDate, setTransactionDate] = useState<string>(
+    transaction?.transactionDate ?? TODAY
+  );
   const [selectedSplitType, setSelectedSplitType] = useState<
     "percentage" | "value"
-  >("value");
-  const [note, setNote] = useState<string>("");
-  const [split, setSplit] = useState<Record<string, number>>({});
+  >(transaction?.splitType ?? "value");
+  const [note, setNote] = useState(transaction?.note ?? "");
+  const [split, setSplit] = useState<Record<string, number>>(
+    transaction?.splitDetails ?? {}
+  );
 
   const [createGroupTransactionTrigger, { isLoading }] =
     GroupTransactionApis.useAddGroupTransactionMutation();
+  const [editGroupTransactionTrigger, { isLoading: editLoading }] =
+    GroupTransactionApis.useEditGroupTransactionMutation();
 
   // initialize split slots when members change
   useEffect(() => {
-    const obj: Record<string, number> = {};
-    members.forEach((m) => (obj[m._id] = 0));
-    setSplit(obj);
-  }, [members]);
+    if (transaction !== undefined) {
+      setSplit(transaction.splitDetails);
+    } else {
+      const obj: Record<string, number> = {};
+      members.forEach((m) => (obj[m._id] = 0));
+      setSplit(obj);
+    }
+  }, [members, transaction]);
 
   // compute sum of splits
   const total = useMemo(
@@ -98,52 +116,62 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
 
   const handleSubmit = () => {
     const transactionObj: AddGroupTransactionRequest = {
-      groupId,
+      groupId: id ?? "",
       amount: Number(amount),
       transactionDate,
       splitType: selectedSplitType,
       splitDetails: split,
       note,
     };
-    createGroupTransactionTrigger(transactionObj).then(() => {
-      handleClose();
-    });
+
+    if (transaction !== undefined) {
+      editGroupTransactionTrigger({
+        transactionId: transaction?._id,
+        ...transactionObj,
+      });
+    } else {
+      createGroupTransactionTrigger(transactionObj).then(() => {
+        handleClose();
+      });
+    }
   };
 
   return (
     <Box sx={{ p: 3, width: 500 }}>
       <Stack flexGrow={1} direction="column" spacing={2}>
-        {/* Transaction date */}
-        <Box>
-          <Typography fontWeight={700} gutterBottom>
-            Date (DD/MM/YYYY)
-          </Typography>
+        <Stack spacing={2} direction="row">
+          {/* Transaction date */}
           <Box>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                value={dayjs(transactionDate)}
-                onChange={(value) =>
-                  setTransactionDate(value?.toISOString() ?? TODAY)
-                }
-                slotProps={{
-                  textField: {
-                    size: "small",
-                    fullWidth: true,
-                  },
-                }}
-                format="DD/MM/YYYY"
-              />
-            </LocalizationProvider>
+            <Typography fontWeight={700} gutterBottom>
+              Date (DD/MM/YYYY)
+            </Typography>
+            <Box>
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  value={dayjs(transactionDate)}
+                  onChange={(value) =>
+                    setTransactionDate(value?.toISOString() ?? TODAY)
+                  }
+                  slotProps={{
+                    textField: {
+                      size: "small",
+                      fullWidth: true,
+                    },
+                  }}
+                  format="DD/MM/YYYY"
+                />
+              </LocalizationProvider>
+            </Box>
           </Box>
-        </Box>
-        {/* Amount */}
-        <FormInput
-          label="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          type="number"
-          placeholder="Enter amount"
-        />
+          {/* Amount */}
+          <FormInput
+            label="Amount"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            type="number"
+            placeholder="Enter amount"
+          />
+        </Stack>
         {/* Note */}
         <FormInput
           label="Note"
@@ -210,7 +238,7 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
           variant="contained"
           color="primary"
           onClick={handleSubmit}
-          loading={isLoading}
+          loading={isLoading || editLoading}
         >
           Submit
         </Button>
