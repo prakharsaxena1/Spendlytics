@@ -24,7 +24,7 @@ type TopbarProps = {
 const AccountBtn = styled(Button)({
   boxShadow: "none",
   borderRadius: 50,
-  bgcolor: "#FFF",
+  bgcolor: "#F2F7FF",
   color: "black",
   textTransform: "none",
 });
@@ -59,7 +59,7 @@ const Topbar: React.FC<TopbarProps> = ({ featuresRef, howItWorksRef }) => {
       sx={{
         position: "sticky",
         top: 0,
-        bgcolor: "#ECF0F1",
+        bgcolor: "#F2F7FF",
         pl: { xs: "0.5rem", sm: "1.5rem" },
         pr: { xs: "0.5rem", sm: "1.5rem" },
         zIndex: 100

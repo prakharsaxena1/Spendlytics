@@ -92,10 +92,7 @@ export const inviteAction = async (
         .isIn(["accept", "reject"])
         .withMessage("Appropriate status is required")
         .run(req),
-      body("groupId")
-        .isMongoId()
-        .withMessage("Group Id is required")
-        .run(req),
+      body("groupId").isMongoId().withMessage("Group Id is required").run(req),
     ]);
     // Validation errors
     const errors = validationResult(req);
@@ -137,7 +134,7 @@ export const inviteAction = async (
           success: false,
           message: "Group not found.",
         });
-        return
+        return;
       }
     }
     await Invitations.findByIdAndDelete(invitationId);
@@ -148,6 +145,75 @@ export const inviteAction = async (
     });
   } catch (error) {
     console.error("Invite action error:", error);
+    next(error);
+  }
+};
+
+export const updateSettings = async (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    await Promise.all([
+      body("theme")
+        .notEmpty()
+        .isString()
+        .withMessage("theme is required")
+        .run(req),
+      body("accentColor")
+        .notEmpty()
+        .isString()
+        .withMessage("Accent color is required")
+        .run(req),
+      body("fontFamily")
+        .notEmpty()
+        .isString()
+        .withMessage("Font family is required")
+        .run(req),
+      body("animationsEnabled")
+        .isBoolean()
+        .withMessage("Propery value is invalid")
+        .run(req),
+      body("iconPack")
+        .isIn(["rounded", "square"])
+        .withMessage("Appropriate status is required")
+        .run(req),
+    ]);
+    // Validation errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res.status(400).json({
+        success: false,
+        message: "Invalid request",
+        errors: errors.array(),
+      });
+      return;
+    }
+
+    const userId = req.user._id as string;
+    const { theme, accentColor, fontFamily, animationsEnabled, iconPack } =
+      req.body;
+    const user = await User.findByIdAndUpdate(
+      userId,
+      {
+        appearanceSettings: {
+          theme,
+          accentColor,
+          fontFamily,
+          animationsEnabled,
+          iconPack,
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json({
+      success: true,
+      message: "Settings updated successfully",
+      user,
+    });
+  } catch (error) {
+    console.error("Settings update error:", error);
     next(error);
   }
 };

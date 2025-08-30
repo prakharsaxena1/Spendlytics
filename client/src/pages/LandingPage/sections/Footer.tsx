@@ -8,7 +8,7 @@ const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <Box sx={{ bgcolor: "Background" }}>
+    <Box>
       <Stack p={2} alignItems="center" justifyContent="center">
         <Typography>Copyright © Spendlytics {currentYear}.</Typography>
         <Typography fontWeight={600}>

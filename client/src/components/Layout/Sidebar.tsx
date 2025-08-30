@@ -28,7 +28,6 @@ const StyledDrawer = styled(Drawer, {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.standard,
     }),
-    bgcolor: "#F2F7FF",
     position: "relative", // Add this
     zIndex: 1100,
   },

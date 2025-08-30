@@ -5,6 +5,7 @@ import type {
   NotificationsResponse,
   InviteActionResponse,
   InviteActionRequest,
+  UpdateAppSettingsRequest,
 } from "./types";
 
 export const UserApis = baseApi.injectEndpoints({
@@ -16,6 +17,13 @@ export const UserApis = baseApi.injectEndpoints({
         params,
       }),
       keepUnusedDataFor: 120,
+    }),
+    updateAppSettings: build.mutation<CommonResponse, UpdateAppSettingsRequest>({
+      query: (body) => ({
+        url: `/users/settings`,
+        method: "PUT",
+        body,
+      }),
     }),
     notification: build.query<NotificationsResponse, void>({
       query: () => ({

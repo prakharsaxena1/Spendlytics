@@ -29,7 +29,7 @@ const FormSlideupDialog: React.FC<FormSlideupDialogProps> = ({
       onClose={handleClose}
       maxWidth="lg"
     >
-      <DialogTitle sx={{ bgcolor: "#ECF0F1" }}>
+      <DialogTitle>
         <Stack
           direction="row"
           justifyContent="space-between"

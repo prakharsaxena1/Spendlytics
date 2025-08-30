@@ -21,6 +21,7 @@ import {
   toggleAnimations,
   type AppConfigInitialStateType,
 } from "../../redux/slices/appConfig/slice";
+import { UserApis } from "../../redux/services/user";
 
 const options = ["blue", "red", "yellow", "green"];
 const fontOptions = ["sans-serif", "serif", "Roboto", "monospace"];
@@ -28,7 +29,8 @@ const fontOptions = ["sans-serif", "serif", "Roboto", "monospace"];
 const Settings: React.FC = () => {
   const dispatch = useAppDispatch();
   const appConfig = useAppSelector(AppConfigSelector);
-  const { theme, animationsEnabled, accentColor, font, iconPack } = appConfig;
+  const { theme, animationsEnabled, accentColor, fontFamily, iconPack } =
+    appConfig;
   const isThemeDark = theme === "dark";
   const isIconPackRound = iconPack === "rounded";
   const themeChange = (newTheme: "light" | "dark") => {
@@ -38,6 +40,9 @@ const Settings: React.FC = () => {
   const iconShapeChange = (newShape: "rounded" | "square") => {
     dispatch(changeIconPack(newShape));
   };
+
+  const [updateSettingsTrigger, { isLoading }] =
+    UserApis.useUpdateAppSettingsMutation();
 
   return (
     <Box sx={{ flexGrow: 1, overflowX: "hidden" }}>
@@ -94,7 +99,7 @@ const Settings: React.FC = () => {
                   sx={{ width: 200 }}
                   size="small"
                   value={accentColor}
-                  onChange={(event, newValue) => {
+                  onChange={(_event, newValue) => {
                     if (newValue) {
                       dispatch(changeAccentColor(newValue));
                     }
@@ -125,10 +130,14 @@ const Settings: React.FC = () => {
                 <Autocomplete
                   sx={{ width: 200 }}
                   size="small"
-                  value={font}
-                  onChange={(event, newValue) => {
+                  value={fontFamily}
+                  onChange={(_event, newValue) => {
                     if (newValue) {
-                      dispatch(changeFont(newValue as AppConfigInitialStateType["font"]));
+                      dispatch(
+                        changeFont(
+                          newValue as AppConfigInitialStateType["fontFamily"]
+                        )
+                      );
                     }
                   }}
                   options={fontOptions}
@@ -171,6 +180,15 @@ const Settings: React.FC = () => {
               </Stack>
             </Stack>
           </Container>
+          <Stack direction="row" justifyContent="center">
+            <Button
+              variant="contained"
+              loading={isLoading}
+              onClick={() => updateSettingsTrigger({ ...appConfig })}
+            >
+              Update preferences
+            </Button>
+          </Stack>
         </Stack>
       </Container>
     </Box>

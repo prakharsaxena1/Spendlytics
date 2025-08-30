@@ -1,3 +1,5 @@
+import type { UserType } from "../auth";
+
 export type MemberType = {
   _id: string;
   username: string;
@@ -60,13 +62,12 @@ export type NotificationsResponse = {
   settlements: SettlementType[];
 };
 
-export type InviteActionResponse = {
-  success: boolean;
-  message: string;
-};
+export type InviteActionResponse = CommonResponse;
 
 export type InviteActionRequest = {
   status: "accept" | "reject";
   invitationId: string;
   groupId: string;
 };
+
+export type UpdateAppSettingsRequest = UserType['appearanceSettings']

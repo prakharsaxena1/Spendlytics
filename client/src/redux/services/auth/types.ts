@@ -7,6 +7,13 @@ export type UserType = {
   totalBalance: number;
   avatar: string;
   hasProvidedStartingBalance: boolean;
+  appearanceSettings: {
+    theme: 'light' | 'dark';
+    accentColor: string;
+    fontFamily: string;
+    animationsEnabled: boolean;
+    iconPack: "rounded" | "square";
+  };
   level: number;
   createdAt: string;
   updatedAt: string;
@@ -16,7 +23,6 @@ export type LoginRegisterResponse = {
   message: string;
   user: UserType;
 };
-
 
 export type LoginRequest = {
   email: string;

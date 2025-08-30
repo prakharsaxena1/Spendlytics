@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Stack from "@mui/material/Stack";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import ProtectedRoute from "../Auth/ProtectedRoute";
 import NavTopbar from "./NavTopbar";
-// import CssBaseline from "@mui/material/CssBaseline";
-// import { ThemeProvider } from "@mui/material";
-// import theme from "./themes/default";
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material";
+import { getDesignTokens } from "./themes/default";
+import { useAppSelector } from "../../redux/hooks";
+import { AppConfigSelector } from "../../redux/slices/appConfig/selector";
 
 const Layout: React.FC = () => {
   return (
@@ -24,11 +26,14 @@ const Layout: React.FC = () => {
   );
 };
 
-// const ThemedLayout: React.FC = () => (
-//   <ThemeProvider theme={theme}>
-//     <CssBaseline />
-//     <Layout />
-//   </ThemeProvider>
-// );
-
-export default Layout;
+const ThemedLayout: React.FC = () => {
+  const appConfig = useAppSelector(AppConfigSelector);
+  const newTheme = useMemo(() => getDesignTokens(appConfig), [appConfig]);
+  return (
+    <ThemeProvider theme={newTheme}>
+      <CssBaseline />
+      <Layout />
+    </ThemeProvider>
+  );
+};
+export default ThemedLayout;

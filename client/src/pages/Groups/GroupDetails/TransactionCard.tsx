@@ -74,7 +74,6 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ tx, memberMap }) => {
           direction="row"
           alignItems="center"
           justifyContent="space-between"
-          sx={{ bgcolor: "#f5f5f5" }}
         >
           <Typography fontWeight={700}>
             Amount: ₹{tx.amount.toLocaleString()}

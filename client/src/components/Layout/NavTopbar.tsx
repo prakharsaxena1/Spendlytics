@@ -43,7 +43,7 @@ const NavTopbar: React.FC = () => {
   };
 
   return (
-    <Box sx={{ bgcolor: grey[100], borderBottom: `1px solid ${grey[300]}` }}>
+    <Box sx={{ borderBottom: `1px solid ${grey[300]}` }}>
       <Stack
         px={5}
         direction="row"
@@ -78,7 +78,7 @@ const NavTopbar: React.FC = () => {
           handleCloseMenu={handleCloseMenu}
         />
         <Drawer anchor="right" open={openDrawer} onClose={handleCloseDrawer}>
-          <Box sx={{ bgcolor: "#ECF0F1", p: 1 }}>
+          <Box sx={{ p: 1 }}>
             <Stack direction="row" spacing={1} alignItems="center">
               <NotificationsIcon />
               <Typography variant="h5">Notifications</Typography>

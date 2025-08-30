@@ -1,16 +1,11 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
+import { AuthApis, type UserType } from "../../services/auth";
 
-export type AppConfigInitialStateType = {
-  theme: "light" | "dark";
-  font: "Roboto" | "sans-serif" | "serif" | "monospace";
-  accentColor: string;
-  animationsEnabled: boolean;
-  iconPack: "rounded" | "square";
-};
+export type AppConfigInitialStateType = UserType["appearanceSettings"];
 
 const initialState: AppConfigInitialStateType = {
   theme: "light",
-  font: "sans-serif",
+  fontFamily: "sans-serif",
   accentColor: "blue",
   animationsEnabled: true,
   iconPack: "rounded",
@@ -28,9 +23,9 @@ const appConfigSlice = createSlice({
     },
     changeFont: (
       state,
-      action: PayloadAction<AppConfigInitialStateType["font"]>
+      action: PayloadAction<AppConfigInitialStateType["fontFamily"]>
     ) => {
-      return { ...state, font: action.payload };
+      return { ...state, fontFamily: action.payload };
     },
     changeAccentColor: (
       state,
@@ -50,6 +45,42 @@ const appConfigSlice = createSlice({
     ) => {
       return { ...state, iconPack: action.payload };
     },
+    setInitialConfig: (
+      state,
+      action: PayloadAction<AppConfigInitialStateType>
+    ) => {
+      return { ...state, ...action.payload };
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addMatcher(
+        AuthApis.endpoints.login.matchFulfilled,
+        (state, { payload }) => {
+          if (payload.user.appearanceSettings) {
+            return { ...state, ...payload.user.appearanceSettings };
+          }
+          return state;
+        }
+      )
+      .addMatcher(
+        AuthApis.endpoints.register.matchFulfilled,
+        (state, { payload }) => {
+          if (payload.user.appearanceSettings) {
+            return { ...state, ...payload.user.appearanceSettings };
+          }
+          return state;
+        }
+      )
+      .addMatcher(
+        AuthApis.endpoints.getCurrentUser.matchFulfilled,
+        (state, { payload }) => {
+          if (payload.user.appearanceSettings) {
+            return { ...state, ...payload.user.appearanceSettings };
+          }
+          return state;
+        }
+      );
   },
 });
 
@@ -59,5 +90,6 @@ export const {
   changeAccentColor,
   toggleAnimations,
   changeIconPack,
+  setInitialConfig,
 } = appConfigSlice.actions;
 export default appConfigSlice.reducer;

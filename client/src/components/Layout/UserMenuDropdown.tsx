@@ -89,7 +89,7 @@ const UserMenuDropdown: React.FC<UserMenuDropdownProps> = ({
         }}
       >
         <Box sx={{ width: 240, p: 0 }}>
-          <Box sx={{ bgcolor: grey[200], p: 1 }}>
+          <Box sx={{ p: 1 }}>
             <Stack direction="column" alignItems="center">
               <Typography variant="body1">
                 {capitalize(user.firstname)} {capitalize(user.lastname)}

@@ -57,7 +57,7 @@ const Transactions: React.FC = () => {
   });
 
   return (
-    <Box sx={{ height: "100%", bgcolor: "white" }}>
+    <Box sx={{ height: "100%" }}>
       <TransactionTable table={table} isLoading={isLoading || isFetching} />
     </Box>
   );
