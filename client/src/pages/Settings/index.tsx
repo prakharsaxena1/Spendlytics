@@ -22,6 +22,7 @@ import {
   type AppConfigInitialStateType,
 } from "../../redux/slices/appConfig/slice";
 import { UserApis } from "../../redux/services/user";
+import { toast } from "react-toastify";
 
 const options = ["blue", "red", "yellow", "green"];
 const fontOptions = ["sans-serif", "serif", "Roboto", "monospace"];
@@ -43,6 +44,15 @@ const Settings: React.FC = () => {
 
   const [updateSettingsTrigger, { isLoading }] =
     UserApis.useUpdateAppSettingsMutation();
+
+    const handleUpdatePreferences = () => {
+      const promise = updateSettingsTrigger({ ...appConfig })
+      toast.promise(promise, {
+        pending: "Updating preferences",
+        success: "Preferences updated successfully",
+        error: "Unable to update preferences",
+      })
+    }
 
   return (
     <Box sx={{ flexGrow: 1, overflowX: "hidden" }}>
@@ -184,7 +194,7 @@ const Settings: React.FC = () => {
             <Button
               variant="contained"
               loading={isLoading}
-              onClick={() => updateSettingsTrigger({ ...appConfig })}
+              onClick={handleUpdatePreferences}
             >
               Update preferences
             </Button>

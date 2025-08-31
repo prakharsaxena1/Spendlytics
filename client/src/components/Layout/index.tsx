@@ -9,6 +9,7 @@ import { ThemeProvider } from "@mui/material";
 import { getDesignTokens } from "./themes/default";
 import { useAppSelector } from "../../redux/hooks";
 import { AppConfigSelector } from "../../redux/slices/appConfig/selector";
+import { Flip, ToastContainer } from "react-toastify";
 
 const Layout: React.FC = () => {
   return (
@@ -21,6 +22,19 @@ const Layout: React.FC = () => {
             <Outlet />
           </Stack>
         </Stack>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          transition={Flip}
+        />
       </Stack>
     </ProtectedRoute>
   );

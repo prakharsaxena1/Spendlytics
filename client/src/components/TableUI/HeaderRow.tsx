@@ -44,7 +44,7 @@ function Filter({ column }: { column: Column<TransactionItemType, unknown> }) {
   return (
     <>
       <IconButton onClick={handleClick} size="small">
-        <MoreVertIcon sx={{ color: '#1976d2' }} />
+        <MoreVertIcon />
       </IconButton>
       <Popover
         open={open}
@@ -101,8 +101,7 @@ const HeaderRow: React.FC<HeaderRowProps> = React.memo(({ headers, sorting }) =>
             p: 0,
             ...(column.getCanSort() && {
               "&:hover": {
-                bgcolor: "#ECF0F1",
-                color: "primary.main",
+                bgcolor: "primary.dark",
               },
             }),
           }}

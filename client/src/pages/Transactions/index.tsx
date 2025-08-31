@@ -15,24 +15,34 @@ import TransactionTable from "./TransactionTable";
 import TransactionApis from "../../redux/services/transaction/api";
 import { useAppSelector } from "../../redux/hooks";
 import { CurrentUserSelector } from "../../redux/slices/auth/selector";
+import { useSearchParams } from "react-router-dom";
 
 const Transactions: React.FC = () => {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] = useState(
     Columns.reduce((acc, col) => ({ ...acc, [col.id as string]: true }), {})
   );
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
   const user = useAppSelector(CurrentUserSelector);
+
+  const [searchParams] = useSearchParams();
+  const page = Number(searchParams.get("page")) || 1;
+  const limit = Number(searchParams.get("limit")) || 25;
 
   const [transactionListTrigger, { data, isLoading, isFetching }] =
     TransactionApis.useLazyTransactionListQuery();
 
   useEffect(() => {
     if (user !== null) {
-      transactionListTrigger(null);
+      transactionListTrigger({
+        page,
+        limit,
+      });
     }
-  }, [transactionListTrigger, user]);
+  }, [limit, page, transactionListTrigger, user]);
 
   // Table
   const table = useReactTable({
@@ -58,7 +68,11 @@ const Transactions: React.FC = () => {
 
   return (
     <Box sx={{ height: "100%" }}>
-      <TransactionTable table={table} isLoading={isLoading || isFetching} />
+      <TransactionTable
+        table={table}
+        isLoading={isLoading || isFetching}
+        total={data?.total ?? 0}
+      />
     </Box>
   );
 };

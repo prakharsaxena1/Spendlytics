@@ -28,7 +28,7 @@ const ListItem: React.FC<ListItemProps> = ({ groupDetails }) => {
           sx={{
             width: 40,
             height: 40,
-            bgcolor: "grey.200",
+            bgcolor: "grey.400",
             borderRadius: "100%",
             display: 'flex',
             justifyContent: 'center',

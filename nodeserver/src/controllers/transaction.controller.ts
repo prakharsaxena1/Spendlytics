@@ -1,6 +1,6 @@
 import { NextFunction, Response } from "express";
 import { ITransaction, Transaction } from "../models/Transaction"; // Adjust the path as needed
-import { body, param, validationResult } from "express-validator";
+import { body, param, query, validationResult } from "express-validator";
 import { AuthenticatedRequest } from "../middleware/auth";
 
 export const createTransaction = async (
@@ -72,13 +72,45 @@ export const getTransactions = async (
   next: NextFunction
 ) => {
   try {
-    const transactions = await Transaction.find({ userId: req.user._id }).sort({
-      transactionDate: -1,
-      createdBy: -1,
-    });
+    await Promise.all([
+      query("page")
+        .notEmpty()
+        .withMessage("Transaction type is required")
+        .isFloat({ min: 0 })
+        .withMessage("Page must be a positive number")
+        .run(req),
+      query("limit")
+        .notEmpty()
+        .withMessage("Limit is required")
+        .isFloat({ min: 1 })
+        .withMessage("Limit must be greater than or equal to 25")
+        .run(req),
+    ]);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      res
+        .status(400)
+        .json({ message: "Invalid request", errors: errors.array() });
+      return;
+    }
+    const page = Math.max(parseInt(req.query.page as string) || 0, 1);
+    const limit = Math.max(parseInt(req.query.limit as string) || 25, 1);
+    const skip = (page - 1) * limit;
+    const [transactions, total] = await Promise.all([
+      Transaction.find({ userId: req.user._id })
+        .sort({ transactionDate: -1, createdBy: -1 })
+        .skip(skip)
+        .limit(limit),
+      Transaction.countDocuments({ userId: req.user._id }),
+    ]);
+
     res.status(200).json({
       success: true,
       message: "Transactions fetched successfully",
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
       transactions,
     });
   } catch (error) {

@@ -18,16 +18,18 @@ import TransactionForm from "./TransactionForm";
 
 type TransactionTableProps = {
   table: Table<TransactionItemType>;
+  total: number;
   isLoading?: boolean;
 };
 
 const TransactionTable: React.FC<TransactionTableProps> = ({
   table,
   isLoading = false,
+  total,
 }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   // Convert URL params to numbers safely
-  const page = Number(searchParams.get("page")) || 0;
+  const page = Number(searchParams.get("page")) || 1;
   const rowsPerPage = Number(searchParams.get("limit")) || 25;
 
   const [openFilterDialog, setOpenFilterDialog] = useState(false);
@@ -37,7 +39,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
 
   useEffect(() => {
     if (!searchParams.get("page") || !searchParams.get("limit")) {
-      setSearchParams({ page: "0", limit: "25" });
+      setSearchParams({ page: "1", limit: "25" });
     }
   }, [searchParams, setSearchParams]);
 
@@ -72,7 +74,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
     newPage: number
   ) => {
     setSearchParams({
-      page: newPage.toString(),
+      page: (newPage + 1).toString(),
       limit: rowsPerPage.toString(),
     });
   };
@@ -81,7 +83,7 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    setSearchParams({ page: "0", limit: event.target.value });
+    setSearchParams({ page: "1", limit: event.target.value });
   };
   return (
     <Stack direction="column" sx={{ height: "100%" }}>
@@ -117,8 +119,8 @@ const TransactionTable: React.FC<TransactionTableProps> = ({
         <Box>
           <TablePagination
             component="div"
-            count={table.getRowCount()}
-            page={page}
+            count={total}
+            page={page - 1}
             onPageChange={handleChangePage}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={handleChangeRowsPerPage}

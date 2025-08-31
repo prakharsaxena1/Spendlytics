@@ -11,9 +11,17 @@ export type TransactionItemType = {
   updatedAt: string;
 };
 
-export type TransactionListResponse = {
-  message: string;
+export type TransactionListResponse = CommonResponse & {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
   transactions: TransactionItemType[];
+};
+
+export type TransactionListRequest = {
+  page: number;
+  limit: number;
 };
 
 export type CreateTransactionResponse = {
