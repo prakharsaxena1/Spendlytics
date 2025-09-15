@@ -6,6 +6,7 @@ import type {
   InviteActionResponse,
   InviteActionRequest,
   UpdateAppSettingsRequest,
+  DashboardDetailsResponse,
 } from "./types";
 
 export const UserApis = baseApi.injectEndpoints({
@@ -18,28 +19,37 @@ export const UserApis = baseApi.injectEndpoints({
       }),
       keepUnusedDataFor: 120,
     }),
-    updateAppSettings: build.mutation<CommonResponse, UpdateAppSettingsRequest>({
-      query: (body) => ({
-        url: `/users/settings`,
-        method: "PUT",
-        body,
-      }),
-    }),
+    updateAppSettings: build.mutation<CommonResponse, UpdateAppSettingsRequest>(
+      {
+        query: (body) => ({
+          url: `/users/settings`,
+          method: "PUT",
+          body,
+        }),
+      }
+    ),
     notification: build.query<NotificationsResponse, void>({
       query: () => ({
         url: `/users/notifications`,
         method: "GET",
       }),
       keepUnusedDataFor: 120,
-      providesTags: ['notifications-invitations']
+      providesTags: ["notifications-invitations"],
     }),
     inviteAction: build.mutation<InviteActionResponse, InviteActionRequest>({
       query: (body) => ({
         url: "/users/invite",
         method: "POST",
-        body
+        body,
       }),
-      invalidatesTags: ['notifications-invitations', 'groups']
+      invalidatesTags: ["notifications-invitations", "groups"],
+    }),
+    dashboard: build.query<DashboardDetailsResponse, void>({
+      query: () => ({
+        url: `/users/dashboard`,
+        method: "GET",
+      }),
+      keepUnusedDataFor: 120,
     }),
   }),
 });

@@ -22,6 +22,9 @@ export type TransactionListResponse = CommonResponse & {
 export type TransactionListRequest = {
   page: number;
   limit: number;
+  categories?: TransactionItemType["category"][];
+  fromDate?: string;
+  toDate?: string;
 };
 
 export type CreateTransactionResponse = {

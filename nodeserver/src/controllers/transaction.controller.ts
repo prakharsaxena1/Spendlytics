@@ -2,6 +2,7 @@ import { NextFunction, Response } from "express";
 import { ITransaction, Transaction } from "../models/Transaction"; // Adjust the path as needed
 import { body, param, query, validationResult } from "express-validator";
 import { AuthenticatedRequest } from "../middleware/auth";
+import { RootFilterQuery } from "mongoose";
 
 export const createTransaction = async (
   req: AuthenticatedRequest,
@@ -75,7 +76,7 @@ export const getTransactions = async (
     await Promise.all([
       query("page")
         .notEmpty()
-        .withMessage("Transaction type is required")
+        .withMessage("Page is required")
         .isFloat({ min: 0 })
         .withMessage("Page must be a positive number")
         .run(req),
@@ -83,9 +84,19 @@ export const getTransactions = async (
         .notEmpty()
         .withMessage("Limit is required")
         .isFloat({ min: 1 })
-        .withMessage("Limit must be greater than or equal to 25")
+        .withMessage("Limit must be greater than or equal to 1")
         .run(req),
+      query("categories")
+        .optional()
+        .customSanitizer((val) =>
+          Array.isArray(val) ? val : String(val).split(",")
+        )
+        .isArray()
+        .run(req),
+      query("fromDate").optional().isString().run(req),
+      query("toDate").optional().isString().run(req),
     ]);
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       res
@@ -93,15 +104,43 @@ export const getTransactions = async (
         .json({ message: "Invalid request", errors: errors.array() });
       return;
     }
-    const page = Math.max(parseInt(req.query.page as string) || 0, 1);
+
+    let categories: string[] = [];
+    if (req.query.categories) {
+      categories = Array.isArray(req.query.categories)
+        ? (req.query.categories as string[])
+        : (req.query.categories as string).split(",");
+    }
+
+    const fromDate = req.query?.fromDate as string;
+    const toDate = req.query?.toDate as string;
+    const page = Math.max(parseInt(req.query.page as string) || 1, 1);
     const limit = Math.max(parseInt(req.query.limit as string) || 25, 1);
     const skip = (page - 1) * limit;
+
+    // Build dynamic filter
+    const filter: RootFilterQuery<ITransaction> = { userId: req.user._id };
+
+    if (categories !== undefined && categories.length > 0) {
+      filter.category = { $in: categories };
+    }
+
+    if (fromDate || toDate) {
+      filter.transactionDate = {};
+      if (fromDate) {
+        filter.transactionDate.$gte = new Date(fromDate);
+      }
+      if (toDate) {
+        filter.transactionDate.$lte = new Date(toDate);
+      }
+    }
+
     const [transactions, total] = await Promise.all([
-      Transaction.find({ userId: req.user._id })
+      Transaction.find(filter)
         .sort({ transactionDate: -1, createdBy: -1 })
         .skip(skip)
         .limit(limit),
-      Transaction.countDocuments({ userId: req.user._id }),
+      Transaction.countDocuments(filter),
     ]);
 
     res.status(200).json({

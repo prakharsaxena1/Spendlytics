@@ -1,4 +1,5 @@
 import type { UserType } from "../auth";
+import type { TransactionItemType } from "../transaction/types";
 
 export type MemberType = {
   _id: string;
@@ -70,4 +71,19 @@ export type InviteActionRequest = {
   groupId: string;
 };
 
-export type UpdateAppSettingsRequest = UserType['appearanceSettings']
+export type UpdateAppSettingsRequest = UserType["appearanceSettings"];
+
+export type CategoryTotals = Record<TransactionItemType["category"], number>
+
+export interface MonthDetail {
+  month: string;
+  detail: CategoryTotals;
+}
+
+export interface DashboardDetailsResponse {
+  success: boolean;
+  message: string;
+  totalPercentage: CategoryTotals;
+  monthDetails: MonthDetail[];
+  totalByCategory: CategoryTotals;
+}

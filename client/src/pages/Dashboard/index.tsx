@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import {
   PieChart,
   Pie,
@@ -22,79 +22,36 @@ import {
   Grid,
   capitalize,
 } from "@mui/material";
-
-// Define TypeScript interfaces
-interface MonthlyData {
-  month: string;
-  savings: number;
-  needs: number;
-  wants: number;
-  investments: number;
-}
-
-interface PieData {
-  name: string;
-  value: number;
-}
-
-// Generate sample data for 12 months
-const generateData = (): MonthlyData[] => {
-  const months = [
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-
-  return months.map((month, index) => {
-    // Base values with some seasonal variation
-    const baseNeeds = 2000 + Math.sin(index) * 200;
-    const baseWants = 800 + Math.cos(index) * 100;
-    const baseSavings = 600 + Math.sin(index + 2) * 100;
-    const baseInvestments = 700 + Math.cos(index + 1) * 150;
-
-    // Add some randomness
-    const randomFactor = () => 0.8 + Math.random() * 0.4;
-
-    return {
-      month,
-      needs: Math.round(baseNeeds * randomFactor()),
-      wants: Math.round(baseWants * randomFactor()),
-      savings: Math.round(baseSavings * randomFactor()),
-      investments: Math.round(baseInvestments * randomFactor()),
-    };
-  });
-};
+import { UserApis } from "../../redux/services/user";
+import Loader from "../../components/common/Loader";
+import type { TransactionItemType } from "../../redux/services/transaction/types";
 
 // Colors for the categories
-const COLORS = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3"];
-const CATEGORIES = ["savings", "needs", "wants", "investments"];
+const COLORS = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
+const CATEGORIES: TransactionItemType["category"][] = ["savings", "needs", "wants", "investments", "debt"];
 
 const BudgetAllocationDashboard: React.FC = () => {
-  const [data] = useState<MonthlyData[]>(generateData());
+  const { data, isLoading } = UserApis.useDashboardQuery();
+  const piedata = useMemo(() => {
+    if (data?.totalPercentage) {
+      return CATEGORIES.map((item) => ({
+        name: item,
+        value: data.totalPercentage[item] ?? -1,
+      }));
+    }
+    return [];
+  }, [data?.totalPercentage]);
 
-  // Calculate totals for pie chart
-  const pieData: PieData[] = CATEGORIES.map((category) => ({
-    name: category.charAt(0).toUpperCase() + category.slice(1),
-    value: data.reduce(
-      (sum, entry) => sum + (entry[category as keyof MonthlyData] as number),
-      0
-    ),
-  }));
+  console.log({ data });
 
+  if (isLoading) {
+    return <Loader />;
+  }
   return (
     <Box sx={{ p: 4 }}>
       <Stack direction="column" gap={4}>
         <Stack direction="row" gap={2} justifyContent="center" flexWrap="wrap">
-          {pieData.map((category, index) => (
+          {CATEGORIES.map((category, index) => (
             <Card
               key={index}
               sx={{
@@ -105,10 +62,10 @@ const BudgetAllocationDashboard: React.FC = () => {
             >
               <CardContent>
                 <Typography fontWeight={700} color={COLORS[index]}>
-                  {category.name}
+                  {capitalize(category)}
                 </Typography>
                 <Typography variant="h5">
-                  ${category.value.toLocaleString()}
+                  Rs. {data?.totalByCategory?.[category] ?? "asd"}
                 </Typography>
               </CardContent>
             </Card>
@@ -119,7 +76,7 @@ const BudgetAllocationDashboard: React.FC = () => {
             <Box sx={{ height: 400, minWidth: "40%" }} component={Paper}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart
-                  data={data}
+                  data={data?.monthDetails}
                   margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -127,6 +84,7 @@ const BudgetAllocationDashboard: React.FC = () => {
                   <YAxis />
                   {CATEGORIES.map((cat, idx) => (
                     <Line
+                      key={cat}
                       type="monotone"
                       dataKey={cat}
                       stroke={COLORS[idx]}
@@ -144,7 +102,7 @@ const BudgetAllocationDashboard: React.FC = () => {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={pieData}
+                    data={piedata}
                     cx="50%"
                     cy="50%"
                     outerRadius={120}
@@ -153,7 +111,7 @@ const BudgetAllocationDashboard: React.FC = () => {
                       `${name}: ${(percent! * 100).toFixed(0)}%`
                     }
                   >
-                    {pieData.map((_entry, index) => (
+                    {CATEGORIES.map((_entry, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Autocomplete,
   Box,
@@ -12,18 +12,44 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import type { TransactionItemType } from "../../redux/services/transaction/types";
-import { CategoryOptions, TODAY } from "../../constants/constants";
+import { CategoryOptions } from "../../constants/constants";
 import dayjs from "dayjs";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { TransactionFilterSelector } from "../../redux/slices/transactionFilter/selector";
+import {
+  clearFilters,
+  setCategories,
+  setFromDate,
+  setToDate,
+} from "../../redux/slices/transactionFilter/slice";
+import { useTxTableContext } from "./TransactionTableContext";
 
-const TransactionFilter: React.FC = () => {
-  const [category, setCategory] =
-    useState<TransactionItemType["category"]>("investments");
-  const [transactionFromDate, setTransactionFromDate] = useState<string>(
-    TODAY
+type TransactionFilterProps = {
+  handleClose: () => void;
+};
+
+const TransactionFilter: React.FC<TransactionFilterProps> = ({
+  handleClose,
+}) => {
+  const dispatch = useAppDispatch();
+  const { txListTrigger, page, limit } = useTxTableContext();
+  const { categories, fromDate, toDate } = useAppSelector(
+    TransactionFilterSelector
   );
-  const [transactionToDate, setTransactionToDate] = useState<string>(
-    TODAY
-  );
+
+  const handleReset = () => {
+    dispatch(clearFilters());
+    txListTrigger({ page, limit });
+    handleClose();
+  };
+
+  const handleApplyFilter = () => {
+    dispatch(setCategories(categories));
+    dispatch(setFromDate(fromDate));
+    dispatch(setToDate(toDate));
+    txListTrigger({ page, limit, categories, fromDate, toDate });
+    handleClose();
+  };
 
   return (
     <Box sx={{ p: 3, width: 500 }}>
@@ -31,25 +57,25 @@ const TransactionFilter: React.FC = () => {
         {/* Category */}
         <Stack sx={{ width: "100%" }}>
           <Typography fontWeight={700} gutterBottom>
-            Category {category === "savings" ? "(In-flow)" : "(Out-flow)"}
+            Category
           </Typography>
           <Autocomplete
-            renderInput={(props) => <TextField {...props} />}
+            multiple
             options={CategoryOptions}
-            value={category}
+            value={categories}
             size="small"
             onChange={(_e, val) =>
-              setCategory(val as TransactionItemType["category"])
+              dispatch(setCategories(val as TransactionItemType["category"][]))
             }
-            disableClearable
-            renderOption={(props) => (
-              <Typography {...props}>{capitalize(props.key)}</Typography>
-            )}
-            renderValue={(value, getItemProps) => (
-              <Typography {...getItemProps()}>{capitalize(value)}</Typography>
+            renderInput={(params) => <TextField {...params} />}
+            renderOption={({ key, ...rest }, option) => (
+              <li key={key} {...rest}>
+                <Typography>{capitalize(option)}</Typography>
+              </li>
             )}
           />
         </Stack>
+
         {/* Transaction daterange */}
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Stack direction="row" spacing={2} alignItems="center">
@@ -58,8 +84,12 @@ const TransactionFilter: React.FC = () => {
                 From (DD/MM/YYYY)
               </Typography>
               <DatePicker
-                value={dayjs(transactionFromDate)}
-                onChange={(value) => setTransactionFromDate(value?.toISOString() ?? TODAY)}
+                value={dayjs(fromDate)}
+                onChange={(value) => {
+                  if (value) {
+                    dispatch(setFromDate(value.startOf("day").toISOString()));
+                  }
+                }}
                 slotProps={{
                   textField: {
                     size: "small",
@@ -74,8 +104,12 @@ const TransactionFilter: React.FC = () => {
                 To (DD/MM/YYYY)
               </Typography>
               <DatePicker
-                value={dayjs(transactionToDate)}
-                onChange={(value) => setTransactionToDate(value?.toISOString() ?? TODAY)}
+                value={dayjs(toDate)}
+                onChange={(value) => {
+                  if (value) {
+                    dispatch(setToDate(value.endOf("day").toISOString()));
+                  }
+                }}
                 slotProps={{
                   textField: {
                     size: "small",
@@ -93,10 +127,12 @@ const TransactionFilter: React.FC = () => {
           alignItems="center"
           justifyContent="center"
         >
-          <Button variant="contained" color="inherit">
+          <Button variant="contained" color="inherit" onClick={handleReset}>
             Clear
           </Button>
-          <Button variant="contained">Apply</Button>
+          <Button variant="contained" onClick={handleApplyFilter}>
+            Apply
+          </Button>
         </Stack>
       </Stack>
     </Box>
