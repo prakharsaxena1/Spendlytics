@@ -1,7 +1,7 @@
 export type TransactionItemType = {
   _id: string;
   transactionType: "inflow" | "outflow";
-  category: "needs" | "wants" | "investments" | "savings" | "debt";
+  category: "needs" | "wants" | "investments" | "savings";
   amount: number;
   transactionDate: string;
   groupId?: string;

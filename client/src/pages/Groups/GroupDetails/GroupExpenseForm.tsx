@@ -10,7 +10,13 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
 import FormInput from "../../../components/common/FormInput";
-import { Divider } from "@mui/material";
+import {
+  Divider,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+} from "@mui/material";
 import type { MemberType } from "../../../redux/services/user";
 import { TODAY } from "../../../constants/constants";
 import {
@@ -69,6 +75,9 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
   const [amount, setAmount] = useState<string>(
     transaction?.amount.toString() ?? "0"
   );
+  const [paidBy, setPaidBy] = useState<string>(
+    transaction?.paidBy ?? members[0]._id
+  );
   const [transactionDate, setTransactionDate] = useState<string>(
     transaction?.transactionDate ?? TODAY
   );
@@ -122,6 +131,7 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
       splitType: selectedSplitType,
       splitDetails: split,
       note,
+      paidBy,
     };
 
     if (transaction !== undefined) {
@@ -172,6 +182,22 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
             placeholder="Enter amount"
           />
         </Stack>
+        {/* Paid by */}
+        <FormControl>
+          <InputLabel>Paid by</InputLabel>
+          <Select
+            value={paidBy}
+            label="Paid by"
+            size="small"
+            onChange={(e) => setPaidBy(e.target.value)}
+          >
+            {members.map((member) => (
+              <MenuItem
+                value={member._id}
+              >{`${member.firstname} ${member.lastname} (@${member.username})`}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         {/* Note */}
         <FormInput
           label="Note"
@@ -181,6 +207,7 @@ const GroupExpenseForm: React.FC<GroupExpenseFormProps> = ({
           multiline
           placeholder="Add a note (optional)"
         />
+
         <Box>
           <Stack direction="row" alignItems="center" spacing={2}>
             <Typography fontWeight={700}>Split by:</Typography>

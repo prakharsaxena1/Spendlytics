@@ -16,7 +16,6 @@ import {
   GroupTransactionApis,
   type GetGroupTransactionsResponse,
 } from "../../../redux/services/group";
-import type { MemberType } from "../../../redux/services/user";
 import { useGroupContext } from "../GroupContext";
 import FormSlideupDialog from "../../../components/common/FormSlideupDialog";
 import GroupExpenseForm from "./GroupExpenseForm";
@@ -26,12 +25,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 type TransactionCardProps = {
   tx: GetGroupTransactionsResponse["transactions"][number];
-  memberMap: Record<string, MemberType>;
 };
 
 const formatUser = (username: string, amt: string) => `@${username}: ${amt}`;
 
-const TransactionCard: React.FC<TransactionCardProps> = ({ tx, memberMap }) => {
+const TransactionCard: React.FC<TransactionCardProps> = ({ tx }) => {
+  const { membersMap: memberMap } = useGroupContext();
+
   const user = useAppSelector(CurrentUserSelector);
   const { group, transaction } = useGroupContext();
 
@@ -42,8 +42,8 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ tx, memberMap }) => {
   const [openEditDialog, setEditDeleteDialog] = useState(false);
 
   const isTxYours = useMemo(
-    () => tx.userId === user?._id,
-    [tx.userId, user?._id]
+    () => tx.createdBy === user?._id,
+    [tx.createdBy, user?._id]
   );
 
   const { setTransaction } = useGroupContext();
@@ -68,9 +68,9 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ tx, memberMap }) => {
 
   return (
     <>
-      <Card sx={{ mb: 1, ml: isTxYours ? "auto" : 0, width: 450 }}>
+      <Card sx={{ p: 1.5, mb: 1, ml: isTxYours ? "auto" : 0, width: 550 }}>
         <Stack
-          p={1}
+          mb={1}
           direction="row"
           alignItems="center"
           justifyContent="space-between"
@@ -111,7 +111,7 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ tx, memberMap }) => {
             </Stack>
           )}
         </Stack>
-        <Box p={1}>
+        <Box>
           <Stack direction="row" flexWrap="wrap" gap={0.5}>
             {Object.entries(tx.splitDetails).map(([userId, percent]) => (
               <Chip
@@ -127,13 +127,16 @@ const TransactionCard: React.FC<TransactionCardProps> = ({ tx, memberMap }) => {
                     )}
                   </Typography>
                 }
-                variant="outlined"
+                variant={userId === tx.paidBy ? "filled" : "outlined"}
               />
             ))}
           </Stack>
-          <Typography variant="h6">{tx.note}</Typography>
-          <Typography variant="caption">
-            Last modified: {getFormattedDate(tx.transactionDate)}
+          <Typography variant="body1">{tx.note}</Typography>
+          <Typography variant="caption" align="right" color="textSecondary" component="div">
+            Last modified: {getFormattedDate(tx.updatedAt)}
+          </Typography>
+          <Typography variant="caption" align="right" color="textSecondary" component="div">
+            Transaction date: {getFormattedDate(tx.transactionDate)}
           </Typography>
         </Box>
       </Card>

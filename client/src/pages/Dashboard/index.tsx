@@ -27,8 +27,8 @@ import Loader from "../../components/common/Loader";
 import type { TransactionItemType } from "../../redux/services/transaction/types";
 
 // Colors for the categories
-const COLORS = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3", "#F44336"];
-const CATEGORIES: TransactionItemType["category"][] = ["savings", "needs", "wants", "investments", "debt"];
+const COLORS = ["#4CAF50", "#FF9800", "#9C27B0", "#2196F3"];
+const CATEGORIES: TransactionItemType["category"][] = ["savings", "needs", "wants", "investments"];
 
 const BudgetAllocationDashboard: React.FC = () => {
   const { data, isLoading } = UserApis.useDashboardQuery();
@@ -41,8 +41,6 @@ const BudgetAllocationDashboard: React.FC = () => {
     }
     return [];
   }, [data?.totalPercentage]);
-
-  console.log({ data });
 
   if (isLoading) {
     return <Loader />;

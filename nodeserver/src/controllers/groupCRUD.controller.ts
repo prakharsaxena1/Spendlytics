@@ -2,7 +2,6 @@ import { NextFunction, Response } from "express";
 import { AuthenticatedRequest } from "../middleware/auth";
 import { Group } from "../models/Group";
 import { param, body, validationResult } from "express-validator";
-import { Settlements } from "../models/Settlements";
 import { Invitations } from "../models/Invitations";
 import { GroupTransaction } from "../models/GroupTransaction";
 
@@ -85,8 +84,6 @@ export const getGroups = async (
         $project: {
           groupName: 1,
           totalExpense: 1,
-          unsettledAmount: 1,
-          isSettled: 1,
           updatedAt: 1,
         },
       },
@@ -139,8 +136,8 @@ export const deleteGroup = async (
     await Promise.all([
       GroupTransaction.deleteMany({ group: groupId }),
       Invitations.deleteMany({ group: groupId }),
-      Settlements.deleteMany({ group: groupId }),
     ]);
+
     res.status(200).json({
       success: true,
       message: "Group and all related data deleted successfully.",
@@ -185,17 +182,14 @@ export const getGroup = async (
       });
       return;
     }
-    // const transactions = await GroupTransaction.find({ group: groupId });
     const invitedMembers = await Invitations.find({ group: groupId })
       .select("_id inviteBy inviteTo group")
       .populate("inviteTo", "username firstname lastname");
-    // const settlements = await Settlements.find({ group: groupId });
+
     res.status(200).json({
       success: true,
       group,
       invitedMembers,
-      // transactions,
-      // settlements,
     });
   } catch (error) {
     console.error("Error fetching Group:", error);
@@ -397,7 +391,7 @@ export const updateGroupName = async (
       group,
     });
   } catch (error) {
-    console.error("Error adding settlement to group:", error);
+    console.error("Error updating group name:", error);
     next(error);
   }
 };

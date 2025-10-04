@@ -5,7 +5,6 @@ export type AllGroupResponse = CommonResponse & {
     _id: string;
     groupName: string;
     totalExpense: number;
-    isSettled: boolean;
     updatedAt: string;
     createdAt: string;
     memberCount: number;
@@ -18,8 +17,6 @@ export type GroupDetailsResponse = CommonResponse & {
     members: MemberType[];
     createdBy: string;
     totalExpense: number;
-    isSettled: boolean;
-    lastSettledAt: null;
     createdAt: string;
     updatedAt: string;
   };

@@ -19,13 +19,17 @@ type SlideupDialogProps = {
   message: string | React.ReactNode;
   open: boolean;
   handleClose: () => void;
+  maxWidth?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   children?: React.ReactNode;
+  fullWidth?: boolean;
 };
 
 const SlideupDialog: React.FC<SlideupDialogProps> = (props) => {
-  const { title, message, open, handleClose, children } = props;
+  const { title, message, maxWidth, fullWidth, open, handleClose, children } = props;
   return (
     <Dialog
+      maxWidth={maxWidth ?? "xl"}
+      fullWidth={fullWidth}
       open={open}
       slots={{
         transition: SlideUpTransition,
@@ -36,7 +40,7 @@ const SlideupDialog: React.FC<SlideupDialogProps> = (props) => {
     >
       <DialogTitle>{title}</DialogTitle>
       <DialogContent>{message}</DialogContent>
-      {children}
+      {open && children}
     </Dialog>
   );
 };

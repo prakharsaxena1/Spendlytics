@@ -4,7 +4,6 @@ import { AuthenticatedRequest } from "../middleware/auth";
 import { Invitations } from "../models/Invitations";
 import { Group } from "../models/Group";
 import { body, query, validationResult } from "express-validator";
-import { Settlements } from "../models/Settlements";
 import { Transaction } from "../models/Transaction";
 
 export const searchUsers = async (
@@ -59,18 +58,10 @@ export const userNotifications = async (
     const invitations = await Invitations.find({ inviteTo: userId })
       .populate("group", "groupName")
       .populate("inviteBy", "username firstname lastname");
-    const settlements = await Settlements.find({
-      paidTo: userId,
-      status: "pending",
-    })
-      .populate("group", "groupName")
-      .populate("paidBy", "username firstname lastname")
-      .populate("paidTo", "username firstname lastname");
 
     res.status(200).json({
       success: true,
       invitations,
-      settlements,
     });
   } catch (error) {
     console.error("User search error:", error);
@@ -285,7 +276,6 @@ export const getDashboardDetails = async (
 
     // Initialize totals
     const totalByCategory: Record<string, number> = {
-      debt: 0,
       savings: 0,
       wants: 0,
       investments: 0,
@@ -327,7 +317,6 @@ export const getDashboardDetails = async (
 
       if (!monthMap[monthName]) {
         monthMap[monthName] = {
-          debt: 0,
           savings: 0,
           wants: 0,
           investments: 0,
@@ -363,7 +352,6 @@ export const getDashboardDetails = async (
       .slice(0, currentMonthIndex + 1)
       .map((month) => {
         const detail = monthMap[month] || {
-          debt: 0,
           savings: 0,
           wants: 0,
           investments: 0,

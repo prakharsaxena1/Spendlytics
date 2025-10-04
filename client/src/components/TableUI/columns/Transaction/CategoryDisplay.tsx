@@ -8,7 +8,6 @@ type CategoryDisplayProps = {
 
 const keyColorMap = {
   savings: "#4CAF50",
-  debt: "#F44336",
   investments: "#2196F3",
   needs: "#FF9800",
   wants: "#9C27B0",

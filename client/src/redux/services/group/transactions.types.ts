@@ -1,4 +1,5 @@
 type GroupTransaction = {
+  paidBy: string;
   amount: number;
   transactionDate: string;
   note: string;
@@ -11,15 +12,19 @@ type GroupTransaction = {
 export type AddGroupTransactionRequest = { groupId: string } & GroupTransaction;
 
 export type AddGroupTransactionResponse = CommonResponse & {
-  transaction: { _id: string; userId: string; group: string } & GroupTransaction;
+  transaction: {
+    _id: string;
+    paidBy: string;
+    createdBy: string;
+    group: string;
+    updatedAt: string;
+    createdAt: string;
+  } & GroupTransaction;
   updatedGroup: {
-    unsettledAmount: number;
     groupName: string;
     members: string[];
     createdBy: string;
     totalExpense: number;
-    isSettled: boolean;
-    lastSettledAt: string | null;
     createdAt: string;
     updatedAt: string;
   };
@@ -45,40 +50,5 @@ export type DeleteGroupTransactionRequest = {
 
 export type DeleteGroupTransactionResponse = CommonResponse;
 
-export type CalculateSettlementRequest = string;
-
-export type CalculateSettlementResponse = CommonResponse & {
-  userPayments: Record<string, number>;
-};
-
-export type CreateSettlementRequest = {
-  groupId: string;
-  paidTo: string;
-  amount: string;
-  note: string;
-};
-
-export type CreateSettlementResponse = CommonResponse;
-
-export type SettlementActionRequest = {
-  groupId: string;
-  settlementId: string;
-  action: 'completed' | 'rejected';
-};
-
-export type SettlementActionResponse = CommonResponse;
-
-export type GetSettlementsResponse = CommonResponse & {
-  settlements: {
-    groupId: string;
-    paidBy: string;
-    paidTo: string;
-    amount: number;
-    status: string;
-    note: string;
-    createdAt: string;
-    updatedAt: string;
-  }[];
-};
-
-export type GroupTransactionFullType = AddGroupTransactionResponse["transaction"]
+export type GroupTransactionFullType =
+  AddGroupTransactionResponse["transaction"];

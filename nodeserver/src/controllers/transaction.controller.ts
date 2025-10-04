@@ -34,7 +34,7 @@ export const createTransaction = async (
       body("category")
         .notEmpty()
         .withMessage("Category is required")
-        .isIn(["needs", "wants", "savings", "investments", "debt"])
+        .isIn(["needs", "wants", "savings", "investments"])
         .withMessage("Invalid category provided")
         .run(req),
       body("note").optional().isString().run(req),
@@ -190,7 +190,7 @@ export const updateTransaction = async (
         .run(req),
       body("category")
         .optional()
-        .isIn(["needs", "wants", "savings", "investments", "debt"])
+        .isIn(["needs", "wants", "savings", "investments"])
         .withMessage("Invalid category provided")
         .run(req),
     ]);

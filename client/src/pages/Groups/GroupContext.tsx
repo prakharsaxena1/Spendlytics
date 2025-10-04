@@ -7,6 +7,7 @@ import {
 } from "../../redux/services/group";
 import { useParams } from "react-router-dom";
 import { Stack, Typography } from "@mui/material";
+import type { MemberType } from "../../redux/services/user";
 
 type GroupContextType = {
   group: GroupDetailsResponse["group"] | null;
@@ -15,6 +16,7 @@ type GroupContextType = {
   setTransaction: React.Dispatch<
     React.SetStateAction<GroupTransactionFullType | null>
   >;
+  membersMap: Record<string, MemberType>;
 };
 
 const GroupContext = createContext<GroupContextType | undefined>(undefined);
@@ -23,12 +25,21 @@ export const GroupProvider = ({ children }: { children: React.ReactNode }) => {
   const { id } = useParams();
   const [transaction, setTransaction] =
     useState<GroupTransactionFullType | null>(null);
+  const [membersMap, setMembersMap] = useState<Record<string, MemberType>>({});
 
-  const [GroupDetailTrigger, { data }] = GroupApis.useLazyGetGroupDetailsQuery();
-
+  const [GroupDetailTrigger, { data }] =
+    GroupApis.useLazyGetGroupDetailsQuery();
   useEffect(() => {
     if (id) {
-      GroupDetailTrigger({ groupId: id });
+      GroupDetailTrigger({ groupId: id }).then((res) => {
+        if (res.data?.group.members) {
+          const map = res.data?.group.members.reduce((obj, m) => {
+            obj[m._id] = m;
+            return obj;
+          }, {} as Record<string, MemberType>);
+          setMembersMap(map);
+        }
+      });
     }
   }, [GroupDetailTrigger, id]);
 
@@ -49,6 +60,7 @@ export const GroupProvider = ({ children }: { children: React.ReactNode }) => {
         transaction,
         setTransaction,
         invitedMembers: data?.invitedMembers || null,
+        membersMap,
       }}
     >
       {children}

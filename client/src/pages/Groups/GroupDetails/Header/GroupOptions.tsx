@@ -13,6 +13,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { GroupApis } from "../../../../redux/services/group";
 import SlideupDialog from "../../../../components/common/SlideupDialog";
 import FormInput from "../../../../components/common/FormInput";
+import BalanceBoard from "./BalanceBoard";
 
 type GroupOptionsProps = {
   anchorEl: null | HTMLElement;
@@ -27,6 +28,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({
   const navigate = useNavigate();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [changeNameDialogOpen, setChangeNameDialogOpen] = useState(false);
+  const [balanceBoardDialogOpen, setBalanceBoardDialogOpen] = useState(false);
 
   const [name, setName] = useState("");
   const [errorName, setErrorName] = useState(false);
@@ -58,7 +60,6 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({
           setName("");
           handleCloseChangeNameDialog();
         });
-      // After api call
     }
   };
 
@@ -78,6 +79,15 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({
     });
   };
 
+  const handleOpenBalanceBoardDialog = () => {
+    setBalanceBoardDialogOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleCloseBalanceBoardDialog = () => {
+    setBalanceBoardDialogOpen(false);
+  };
+
   return (
     <>
       <Menu
@@ -95,11 +105,11 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({
       >
         <Box sx={{ width: 200 }}>
           <MenuList sx={{ p: 0 }}>
-            <MenuItem>
+            <MenuItem onClick={handleOpenBalanceBoardDialog}>
               <ListItemIcon>
                 <PriceCheckIcon />
               </ListItemIcon>
-              <ListItemText>Settle payments</ListItemText>
+              <ListItemText>Balance board</ListItemText>
             </MenuItem>
             <MenuItem onClick={handleChangeName}>
               <ListItemIcon>
@@ -145,8 +155,7 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({
           <Stack direction="column" spacing={0.5}>
             <Typography>Are you sure you want to delete this group?</Typography>
             <Typography variant="caption">
-              This will delete all the group transactions, settlements and
-              pending invites
+              This will delete all the group transactions and pending invites
             </Typography>
           </Stack>
         }
@@ -161,6 +170,17 @@ const GroupOptions: React.FC<GroupOptionsProps> = ({
             Yes
           </Button>
         </DialogActions>
+      </SlideupDialog>
+      {/* Balance Board */}
+      <SlideupDialog
+        title="Balance Board"
+        maxWidth="md"
+        fullWidth
+        message={null}
+        open={balanceBoardDialogOpen}
+        handleClose={handleCloseBalanceBoardDialog}
+      >
+        <BalanceBoard />
       </SlideupDialog>
     </>
   );

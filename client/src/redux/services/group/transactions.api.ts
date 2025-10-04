@@ -7,13 +7,6 @@ import type {
   EditGroupTransactionResponse,
   DeleteGroupTransactionRequest,
   DeleteGroupTransactionResponse,
-  CalculateSettlementRequest,
-  CalculateSettlementResponse,
-  CreateSettlementRequest,
-  CreateSettlementResponse,
-  SettlementActionRequest,
-  SettlementActionResponse,
-  GetSettlementsResponse,
 } from "./transactions.types";
 
 export const GroupTransactionApis = baseApi.injectEndpoints({
@@ -48,32 +41,6 @@ export const GroupTransactionApis = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       invalidatesTags: ["group-transactionsList"]
-    }),
-    calculateSettlement: build.query<CalculateSettlementResponse, CalculateSettlementRequest>({
-      query: (groupId) => ({
-        url: `/group/${groupId}/settlement`,
-        method: "GET",
-      }),
-    }),
-    createSettlement: build.mutation<CreateSettlementResponse, CreateSettlementRequest>({
-      query: ({ groupId, ...body }) => ({
-        url: `/group/${groupId}/settlement`,
-        method: "POST",
-        body,
-      }),
-    }),
-    settlementAction: build.mutation<SettlementActionResponse, SettlementActionRequest>({
-      query: ({ groupId, settlementId, ...body }) => ({
-        url: `/group/${groupId}/settlement/${settlementId}`,
-        method: "PUT",
-        body,
-      }),
-    }),
-    getSettlements: build.query<GetSettlementsResponse, string>({
-      query: (groupId) => ({
-        url: `/group/${groupId}/settlement`,
-        method: "GET",
-      }),
     }),
   }),
 });

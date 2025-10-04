@@ -15,12 +15,7 @@ import {
   editGroupTransaction,
   deleteGroupTransaction,
 } from "../controllers/groupTransactions.controller";
-import {
-  calculateSettlement,
-  createSettlement,
-  settlementAction,
-  getSettlements,
-} from "../controllers/groupSettlements.controller";
+import { calculateBalanceBoard } from "../controllers/groupBalance.controller";
 
 const router = express.Router();
 
@@ -36,11 +31,18 @@ router.put("/:groupId", authenticate, updateGroupName);
 // Group Transactions
 router.post("/:groupId/transaction", authenticate, addGroupTransaction);
 router.get("/:groupId/transaction", authenticate, getGroupTransactions);
-router.put("/:groupId/transaction/:transactionId", authenticate, editGroupTransaction);
-router.delete("/:groupId/transaction/:transactionId", authenticate, deleteGroupTransaction);
-router.get("/:groupId/settlement", authenticate, calculateSettlement);
-router.post("/:groupId/settlement", authenticate, createSettlement);
-router.put("/:groupId/settlement/:settlementId", authenticate, settlementAction);
-router.get("/:groupId/settlement", authenticate, getSettlements);
+router.put(
+  "/:groupId/transaction/:transactionId",
+  authenticate,
+  editGroupTransaction
+);
+router.delete(
+  "/:groupId/transaction/:transactionId",
+  authenticate,
+  deleteGroupTransaction
+);
+
+// Group Balance Board
+router.get("/:groupId/balance", authenticate, calculateBalanceBoard);
 
 export default router;

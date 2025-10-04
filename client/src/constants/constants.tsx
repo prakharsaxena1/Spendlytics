@@ -5,7 +5,6 @@ export const TODAY = dayjs().toISOString();
 
 export const CategoryOptions: TransactionItemType["category"][] = [
   "savings",
-  "debt",
   "investments",
   "needs",
   "wants",

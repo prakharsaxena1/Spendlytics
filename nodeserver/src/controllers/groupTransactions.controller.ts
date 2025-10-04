@@ -24,6 +24,12 @@ export const addGroupTransaction = async (
         .withMessage("Amount must be a positive number")
         .toFloat()
         .run(req),
+      body("paidBy")
+        .notEmpty()
+        .withMessage("Paid By is required")
+        .isMongoId()
+        .withMessage("Paid By must be a valid MongoDB ID")
+        .run(req),
       body("transactionDate")
         .isISO8601()
         .withMessage("Invalid transaction date")
@@ -69,22 +75,23 @@ export const addGroupTransaction = async (
       return;
     }
     const { groupId } = req.params;
-    const { amount, transactionDate, note, splitType, splitDetails } = req.body;
+    const { amount, transactionDate, note, splitType, splitDetails, paidBy } =
+      req.body;
     const transaction = await GroupTransaction.create({
       amount,
       transactionDate,
       note,
-      userId: req.user._id,
       group: groupId,
       splitType,
       splitDetails,
+      paidBy,
+      createdBy: req.user._id,
     });
 
     const updatedGroup = await Group.findByIdAndUpdate(
       groupId,
       {
         $inc: {
-          unsettledAmount: amount,
           totalExpense: amount,
         },
       },
@@ -160,6 +167,12 @@ export const editGroupTransaction = async (
       .isMongoId()
       .withMessage("Transaction ID must be a valid MongoDB ID")
       .run(req),
+    body("paidBy")
+      .notEmpty()
+      .withMessage("Paid By is required")
+      .isMongoId()
+      .withMessage("Paid By must be a valid MongoDB ID")
+      .run(req),
     body("amount")
       .notEmpty()
       .withMessage("Amount is required")
@@ -223,6 +236,7 @@ export const editGroupTransaction = async (
     note,
     splitType,
     splitDetails,
+    paidBy,
   } = req.body;
   const user = req.user._id.toString();
 
@@ -245,7 +259,7 @@ export const editGroupTransaction = async (
       return;
     }
     if (
-      existing.userId.toString() !== user &&
+      existing.createdBy.toString() !== user &&
       group.createdBy.toString() !== user
     ) {
       res.status(401).json({
@@ -260,16 +274,16 @@ export const editGroupTransaction = async (
     existing.note = note ?? existing.note;
     existing.splitType = splitType;
     existing.splitDetails = splitDetails;
+    existing.paidBy = paidBy;
     await existing.save();
     await Group.findByIdAndUpdate(groupId, {
       $inc: {
-        unsettledAmount: delta,
         totalExpense: delta,
       },
     });
     res.status(200).json({
       success: true,
-      message: "Transaction updated and unsettledAmount adjusted.",
+      message: "Transaction updated successfully",
       transaction: existing,
     });
   } catch (err) {
@@ -331,7 +345,6 @@ export const deleteGroupTransaction = async (
     await group.updateOne(
       {
         $inc: {
-          unsettledAmount: -deletedTransaction.amount,
           totalExpense: -deletedTransaction.amount,
         },
       },
