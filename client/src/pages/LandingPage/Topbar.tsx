@@ -1,12 +1,5 @@
 import React from "react";
-import {
-  Avatar,
-  Box,
-  IconButton,
-  Stack,
-  styled,
-  Toolbar,
-} from "@mui/material";
+import { Avatar, Box, IconButton, Stack, styled, Toolbar } from "@mui/material";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MenuIcon from "@mui/icons-material/Menu";
 import Button from "@mui/material/Button";
@@ -62,7 +55,7 @@ const Topbar: React.FC<TopbarProps> = ({ featuresRef, howItWorksRef }) => {
         bgcolor: "#F2F7FF",
         pl: { xs: "0.5rem", sm: "1.5rem" },
         pr: { xs: "0.5rem", sm: "1.5rem" },
-        zIndex: 100
+        zIndex: 100,
       }}
     >
       <Toolbar>
@@ -106,7 +99,13 @@ const Topbar: React.FC<TopbarProps> = ({ featuresRef, howItWorksRef }) => {
             </Button>
           </Stack>
           {/* loggedin menus */}
-          <Box sx={{ width: 200, display: { xs: "none", md: "flex" }, visibility: isLoading ? 'hidden' : 'visible' }}>
+          <Box
+            sx={{
+              width: 200,
+              display: { xs: "none", md: "flex" },
+              visibility: isLoading ? "hidden" : "visible",
+            }}
+          >
             {isAuthenticated ? (
               <Stack direction="row" alignItems="center" spacing={2}>
                 <Button

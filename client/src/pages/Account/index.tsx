@@ -15,14 +15,12 @@ import {
 interface UserDetails {
   firstName: string;
   lastName: string;
-  balance: number;
 }
 
 const Account: React.FC = () => {
   const [formData, setFormData] = useState<UserDetails>({
     firstName: "",
     lastName: "",
-    balance: 0,
   });
 
   const [errors, setErrors] = useState<
@@ -30,15 +28,7 @@ const Account: React.FC = () => {
   >({});
 
   const handleChange = (field: keyof UserDetails, value: string) => {
-    if (field === "balance") {
-      const numericValue = parseFloat(value);
-      setFormData((prev) => ({
-        ...prev,
-        balance: isNaN(numericValue) ? 0 : numericValue,
-      }));
-    } else {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    }
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const validate = () => {
@@ -48,9 +38,6 @@ const Account: React.FC = () => {
     }
     if (!formData.lastName.trim()) {
       newErrors.lastName = "Last name is required";
-    }
-    if (formData.balance < 0) {
-      newErrors.balance = "Balance cannot be negative";
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -87,16 +74,6 @@ const Account: React.FC = () => {
                 error={!!errors.lastName}
                 helperText={errors.lastName}
                 fullWidth
-              />
-              <TextField
-                label="Current Account Balance"
-                type="number"
-                value={formData.balance}
-                onChange={(e) => handleChange("balance", e.target.value)}
-                error={!!errors.balance}
-                helperText={errors.balance}
-                fullWidth
-                inputProps={{ step: "0.01" }}
               />
             </Stack>
             <Button type="submit" variant="contained" onClick={handleSubmit}>
