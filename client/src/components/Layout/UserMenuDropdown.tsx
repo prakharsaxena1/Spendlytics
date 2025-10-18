@@ -11,7 +11,6 @@ import DialogActions from "@mui/material/DialogActions";
 import Settings from "@mui/icons-material/Settings";
 import Logout from "@mui/icons-material/Logout";
 import PersonIcon from "@mui/icons-material/Person";
-import { grey } from "@mui/material/colors";
 import { capitalize } from "@mui/material";
 import { AuthApis } from "../../redux/services/auth";
 import { CurrentUserSelector } from "../../redux/slices/auth/selector";
