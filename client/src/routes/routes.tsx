@@ -8,9 +8,9 @@ import Dashboard from "../pages/Dashboard";
 import Account from "../pages/Account";
 import Settings from "../pages/Settings";
 import LoginRegister from "../pages/LoginRegister";
-import SharedGroups from "../pages/SharedGroups";
-import { store } from "../redux/store";
+import Groups from "../pages/Groups";
 import { AuthApis } from "../redux/services/auth";
+import { store } from "../redux/store";
 
 const routes: RouteObject[] = [
   {
@@ -30,7 +30,9 @@ const routes: RouteObject[] = [
         element: <Layout />,
         loader: async () => {
           try {
-            const user = await store.dispatch(AuthApis.endpoints.getCurrentUser.initiate()).unwrap();
+            const user = await store
+              .dispatch(AuthApis.endpoints.getCurrentUser.initiate())
+              .unwrap();
             if (!user) return redirect("/account?tab=login");
             return null;
           } catch {
@@ -51,8 +53,12 @@ const routes: RouteObject[] = [
             element: <Transactions />,
           },
           {
-            path: "/app/shared-groups",
-            element: <SharedGroups />,
+            path: "/app/groups",
+            element: <Groups />,
+          },
+          {
+            path: "/app/groups/:id",
+            element: <Groups />,
           },
           {
             path: "/app/money-plans",

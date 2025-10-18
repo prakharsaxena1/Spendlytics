@@ -17,7 +17,7 @@ const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [registerMutation] = AuthApis.useRegisterMutation();
+  const [registerMutation, { isLoading }] = AuthApis.useRegisterMutation();
 
   const gotoLogin = () => {
     navigate("/account?tab=login");
@@ -110,7 +110,7 @@ const RegisterForm: React.FC = () => {
           type="password"
           placeholder="****"
         />
-        <Button variant="contained" onClick={handleRegister}>
+        <Button variant="contained" onClick={handleRegister} disabled={isLoading}>
           Register
         </Button>
       </Stack>

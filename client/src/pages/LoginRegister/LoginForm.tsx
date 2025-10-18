@@ -1,7 +1,7 @@
-import { Button, Stack, Typography } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import GoogleIcon from "@mui/icons-material/Google";
+// import GoogleIcon from "@mui/icons-material/Google";
 import { toast } from "react-toastify";
 import FormInput from "../../components/common/FormInput";
 import LoginRegisterContainer from "./LoginRegisterContainer";
@@ -12,7 +12,7 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [loginTrigger] = AuthApis.useLoginMutation();
+  const [loginTrigger, { isLoading }] = AuthApis.useLoginMutation();
 
   const gotoRegister = () => {
     navigate("/account?tab=register");
@@ -53,7 +53,7 @@ const LoginForm: React.FC = () => {
       actionLabel="Create one"
       formLabel="Sign-in"
     >
-      <Stack spacing={2} marginBottom={2} alignItems="start">
+      {/* <Stack spacing={2} marginBottom={2} alignItems="start">
         <Button
           startIcon={<GoogleIcon />}
           variant="outlined"
@@ -66,7 +66,7 @@ const LoginForm: React.FC = () => {
           Sign in with Google
         </Button>
         <Typography>Or continue with email</Typography>
-      </Stack>
+      </Stack> */}
       <Stack direction="column" spacing={2} alignItems="center">
         <FormInput
           label="Email"
@@ -82,7 +82,7 @@ const LoginForm: React.FC = () => {
           type="password"
           placeholder="****"
         />
-        <Button variant="contained" onClick={handleLogin}>
+        <Button variant="contained" onClick={handleLogin} disabled={isLoading}>
           Login
         </Button>
       </Stack>

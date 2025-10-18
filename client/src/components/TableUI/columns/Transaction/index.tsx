@@ -8,12 +8,14 @@ import type {
   TransactionItemType,
   UpdateTransactionRequest,
 } from "../../../../redux/services/transaction/types";
+import Header from "./Header";
 
 const columnHelper = createColumnHelper<TransactionItemType>();
 
 const columns = [
   columnHelper.accessor("transactionType", {
-    header: "Money flow",
+    id: "Money Flow",
+    header: () => <Header headerStr="Money flow" />,
     cell: (info) => (
       <Typography
         variant="body2"
@@ -24,15 +26,25 @@ const columns = [
       </Typography>
     ),
     size: 150,
+    enableColumnFilter: true,
+    meta: {
+      filterVariant: "select",
+    },
   }),
   columnHelper.accessor("category", {
-    header: "Category",
+    id: "Category",
+    header: () => <Header headerStr="Category" />,
     cell: (info) => <CategoryDisplay categoryType={info.getValue()} />,
     size: 100,
     enableHiding: false,
+    enableColumnFilter: true,
+    meta: {
+      filterVariant: "select",
+    },
   }),
   columnHelper.accessor("amount", {
-    header: "Amount",
+    id: "Amount",
+    header: () => <Header headerStr="Amount" />,
     cell: (info) => (
       <Typography variant="body2">Rs.{info.getValue()}</Typography>
     ),
@@ -41,32 +53,42 @@ const columns = [
     enableColumnFilter: false,
   }),
   columnHelper.accessor("transactionDate", {
-    header: "Transaction date",
-    cell: (info) => getFormattedDate(info.getValue()),
+    id: "Transaction date",
+    header: () => <Header headerStr="Transaction date" />,
+    cell: (info) => (
+      <Typography variant="body2" sx={{ textWrap: "nowrap" }}>
+        {getFormattedDate(info.getValue())}
+      </Typography>
+    ),
     size: 200,
     enableColumnFilter: false,
   }),
   columnHelper.accessor("updatedAt", {
-    header: "Last modified",
-    cell: (info) => getFormattedDate(info.getValue()),
+    id: "Last modified",
+    header: () => <Header headerStr="Last modified" />,
+    cell: (info) => (
+      <Typography variant="body2" sx={{ textWrap: "nowrap" }}>
+        {getFormattedDate(info.getValue())}
+      </Typography>
+    ),
     size: 200,
     enableColumnFilter: false,
   }),
   columnHelper.accessor("note", {
-    header: "Comment",
-    cell: (info) => info.getValue(),
+    id: "Comment",
+    header: () => <Header headerStr="Comment" />,
+    cell: (info) => (
+      <Typography variant="body2" sx={{ textWrap: "nowrap" }}>
+        {info.getValue()}
+      </Typography>
+    ),
     size: 320,
     enableSorting: false,
     enableColumnFilter: false,
   }),
-  // columnHelper.accessor("isShared", {
-  //   header: "Shared",
-  //   cell: (info) => (info.getValue() ? "✔️" : null),
-  //   size: 80,
-  //   enableSorting: false,
-  // }),
   columnHelper.display({
-    header: "Action",
+    id: "action",
+    header: () => <Header headerStr="Action" />,
     cell: ({ row }) => (
       <ActionDisplay row={row.original as UpdateTransactionRequest} />
     ),

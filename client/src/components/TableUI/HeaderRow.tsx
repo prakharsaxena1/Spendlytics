@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import TableCell from "@mui/material/TableCell";
@@ -40,11 +40,7 @@ function Filter({ column }: { column: Column<TransactionItemType, unknown> }) {
   const open = Boolean(anchorEl);
 
   const columnFilterValue = column.getFilterValue();
-  const sortedUniqueValues = useMemo(
-    () => Array.from(column.getFacetedUniqueValues().keys()).sort(),
-    [column]
-  );
-
+  const sortedUniqueValues = Array.from(column.getFacetedUniqueValues().keys()).sort()
   return (
     <>
       <IconButton onClick={handleClick} size="small">
@@ -89,7 +85,7 @@ function Filter({ column }: { column: Column<TransactionItemType, unknown> }) {
   );
 }
 
-const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
+const HeaderRow: React.FC<HeaderRowProps> = React.memo(({ headers, sorting }) => {
   return (
     <TableRow>
       {headers.map(({ column, id, getContext }) => (
@@ -105,16 +101,15 @@ const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
             p: 0,
             ...(column.getCanSort() && {
               "&:hover": {
-                bgcolor: "#ECF0F1",
-                color: "primary.main",
+                bgcolor: "primary.dark",
               },
             }),
           }}
         >
-          <Stack direction="row" spacing={2} justifyContent="space-between">
+          <Stack direction="row" justifyContent="space-between">
             <Box
               onClick={column.getToggleSortingHandler()}
-              sx={{ p: "6px 16px" }}
+              sx={{ p: "6px 16px", flexGrow: 1 }}
             >
               <Stack
                 direction="row"
@@ -123,9 +118,9 @@ const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
               >
                 {flexRender(column.columnDef.header, getContext())}
                 {sorting?.[0]?.id !== id ? null : sorting[0].desc ? (
-                  <ArrowDownwardIcon />
+                  <ArrowDownwardIcon fontSize="small" />
                 ) : (
-                  <ArrowUpwardIcon />
+                  <ArrowUpwardIcon fontSize="small" />
                 )}
               </Stack>
             </Box>
@@ -137,6 +132,6 @@ const HeaderRow: React.FC<HeaderRowProps> = ({ headers, sorting }) => {
       ))}
     </TableRow>
   );
-};
+});
 
 export default HeaderRow;

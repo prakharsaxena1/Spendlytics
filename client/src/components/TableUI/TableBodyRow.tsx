@@ -1,10 +1,10 @@
-import { flexRender, type Row } from '@tanstack/react-table';
-import React from 'react'
-import { TableCell, TableRow } from '@mui/material';
-import type { TransactionItemType } from '../../redux/services/transaction/types';
+import { flexRender, type Row } from "@tanstack/react-table";
+import React from "react";
+import { TableCell, TableRow } from "@mui/material";
+import type { TransactionItemType } from "../../redux/services/transaction/types";
 
 type TableBodyRowProps = {
-  row: Row<TransactionItemType>
+  row: Row<TransactionItemType>;
 };
 
 const TableBodyRow: React.FC<TableBodyRowProps> = ({ row }) => {
@@ -19,4 +19,4 @@ const TableBodyRow: React.FC<TableBodyRowProps> = ({ row }) => {
   );
 };
 
-export default TableBodyRow
+export default TableBodyRow;

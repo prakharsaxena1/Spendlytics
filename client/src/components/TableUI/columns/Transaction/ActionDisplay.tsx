@@ -1,21 +1,19 @@
 import React, { useState } from "react";
-import { IconButton, Stack } from "@mui/material";
+import { Box, IconButton, Stack, Typography } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import type { UpdateTransactionRequest } from "../../../../redux/services/transaction/types";
 import TransactionApis from "../../../../redux/services/transaction/api";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  Button,
-} from "@mui/material";
-import { SlideUpTransition } from "../../../common/SlideupDialog";
-import AddTransactionDialog from "../../../../pages/Transactions/AddTransactionDialog";
+import { DialogActions, Button } from "@mui/material";
+import SlideupDialog from "../../../common/SlideupDialog";
+import FormSlideupDialog from "../../../common/FormSlideupDialog";
+import TransactionForm from "../../../../pages/Transactions/TransactionForm";
 
-const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({ row }) => {
+type ActionDisplayProps = {
+  row: UpdateTransactionRequest;
+};
+
+const ActionDisplay: React.FC<ActionDisplayProps> = ({ row }) => {
   const [openEditDialog, setOpenEditDialog] = useState<boolean>(false);
   const [openDeleteDialog, setOpenDeleteDialog] = useState<boolean>(false);
 
@@ -34,11 +32,13 @@ const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({ row }) => 
   const handleOpenDeleteDialog = () => {
     setOpenDeleteDialog(true);
   };
-  const [deleteTrigger] = TransactionApis.useDeleteTransactionMutation();
+  const [deleteTrigger, { isLoading }] =
+    TransactionApis.useDeleteTransactionMutation();
   const handleDeleteTransaction = () => {
     deleteTrigger({
       transactionId: row._id,
-      userId: row.userId,
+    }).then(() => {
+      handleCloseDeleteDialog();
     });
   };
   return (
@@ -49,27 +49,37 @@ const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({ row }) => 
       <IconButton size="small" onClick={handleOpenDeleteDialog}>
         <DeleteIcon />
       </IconButton>
-
-      <AddTransactionDialog
+      <FormSlideupDialog
         open={openEditDialog}
         handleClose={handleCloseEditDialog}
-        transaction={row}
+        title={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <EditIcon />
+            <Typography variant="h5">Edit transaction</Typography>
+          </Stack>
+        }
+        content={
+          <TransactionForm
+            handleClose={handleCloseEditDialog}
+            transaction={row}
+          />
+        }
       />
-
-      <Dialog
-        slots={{
-          transition: SlideUpTransition,
-        }}
+      <SlideupDialog
+        title="Delete Transaction"
+        message={
+          <Box>
+            <Typography>
+              Are you sure you want to delete this transaction?
+            </Typography>
+            <Typography variant="caption" color="error">
+              This action cannot be undone.
+            </Typography>
+          </Box>
+        }
         open={openDeleteDialog}
-        onClose={handleCloseDeleteDialog}
+        handleClose={handleCloseDeleteDialog}
       >
-        <DialogTitle>Delete Transaction</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete this transaction? This action cannot
-            be undone.
-          </DialogContentText>
-        </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDeleteDialog} variant="outlined">
             Cancel
@@ -78,11 +88,12 @@ const ActionDisplay: React.FC<{ row: UpdateTransactionRequest }> = ({ row }) => 
             onClick={handleDeleteTransaction}
             variant="contained"
             color="error"
+            loading={isLoading}
           >
             Delete
           </Button>
         </DialogActions>
-      </Dialog>
+      </SlideupDialog>
     </Stack>
   );
 };

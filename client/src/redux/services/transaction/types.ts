@@ -1,20 +1,30 @@
 export type TransactionItemType = {
+  _id: string;
   transactionType: "inflow" | "outflow";
-  category: "needs" | "wants" | "investments" | "savings" | "debt";
+  category: "needs" | "wants" | "investments" | "savings";
   amount: number;
   transactionDate: string;
-  isShared: boolean;
-  sharedGroupId?: string;
+  groupId?: string;
   note: string;
-  _id: string;
+  userId: string;
   createdAt: string;
   updatedAt: string;
-  userId: string;
 };
 
-export type TransactionListResponse = {
-  message: string;
+export type TransactionListResponse = CommonResponse & {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
   transactions: TransactionItemType[];
+};
+
+export type TransactionListRequest = {
+  page: number;
+  limit: number;
+  categories?: TransactionItemType["category"][];
+  fromDate?: string;
+  toDate?: string;
 };
 
 export type CreateTransactionResponse = {
@@ -27,8 +37,6 @@ export type CreateTransactionRequest = {
   category: TransactionItemType["category"];
   amount: number;
   transactionDate: string;
-  isShared?: boolean;
-  sharedGroupId?: string | undefined;
   note: string;
 };
 

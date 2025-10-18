@@ -1,11 +1,17 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseApi = createApi({
-  reducerPath: 'SpendlyticsAPI',
-  tagTypes: ['transactionsList'],
+  reducerPath: "SpendlyticsAPI",
+  tagTypes: [
+    "transactionsList",
+    "notifications-invitations",
+    "groups",
+    "group-details",
+    "group-transactionsList",
+  ],
   baseQuery: fetchBaseQuery({
-    baseUrl: import.meta.env.VITE_API_URL || 'http://localhost:4000/api',
-    credentials: 'include',
+    baseUrl: import.meta.env.VITE_API_URL || "http://localhost:4000/api",
+    credentials: "include",
     prepareHeaders: (headers) => {
       return headers;
     },

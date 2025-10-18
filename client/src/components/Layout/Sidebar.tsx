@@ -1,114 +1,73 @@
 import React from "react";
-import Button from "@mui/material/Button";
-import DialogActions from "@mui/material/DialogActions";
 import Drawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
-import Brand from "../common/Brand";
 import NavItem from "./NavItem";
-import Settings from "@mui/icons-material/Settings";
-import Logout from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import SlideupDialog from "../common/SlideupDialog";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PaidIcon from "@mui/icons-material/Paid";
-import FlagCircleIcon from "@mui/icons-material/FlagCircle";
 import GroupsIcon from "@mui/icons-material/Groups";
-import { useNavigate } from "react-router-dom";
-import UserDetailsBox from "./UserDetailsBox";
-import { useAppDispatch } from "../../redux/hooks";
-import { logout } from "../../redux/slices/auth/slice";
-import { AuthApis } from "../../redux/services/auth";
-import { changeTheme } from "../../redux/slices/appConfig/slice";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import ChevronRightIcon from "@mui/icons-material/ChevronRight";
+import { IconButton, styled } from "@mui/material";
+
+const DRAWER_WIDTH = 220;
+const COLLAPSED_WIDTH = 56;
+
+const StyledDrawer = styled(Drawer, {
+  shouldForwardProp: (prop) => prop !== "collapsed",
+})<{ collapsed: boolean }>(({ theme, collapsed }) => ({
+  width: collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
+  flexShrink: 0,
+  whiteSpace: "nowrap",
+  boxSizing: "border-box",
+  willChange: "auto",
+  "& .MuiDrawer-paper": {
+    boxSizing: "border-box",
+    width: collapsed ? COLLAPSED_WIDTH : DRAWER_WIDTH,
+    overflowX: "hidden",
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.standard,
+    }),
+    position: "relative", // Add this
+    zIndex: 1100,
+  },
+}));
 
 const Sidebar = () => {
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate();
-  const [logutDialogOpen, setLogutDialogOpen] = React.useState(false);
-  const [logoutTrigger] = AuthApis.useLogoutMutation()
-
-  const handleLogutDialogOpen = () => {
-    setLogutDialogOpen(true);
-  };
-
-  const handleLogutDialogClose = () => {
-    setLogutDialogOpen(false);
-  };
-
-  const handleUserLogout = () => {
-    logoutTrigger(null).unwrap().then(() => {
-      dispatch(logout())
-      dispatch(changeTheme('light'))
-      navigate("/");
-    })
-  };
-
+  const [collapsed, setCollapsed] = React.useState(false);
+  const handleToggle = () => setCollapsed((prev) => !prev);
   return (
-    <Drawer
-      sx={{
-        width: 220,
-        "& .MuiDrawer-paper": {
-          width: 220,
-          boxSizing: "border-box",
-        },
-      }}
-      variant="permanent"
-      anchor="left"
-    >
-      <Brand />
+    <StyledDrawer variant="permanent" collapsed={collapsed}>
       <List sx={{ flexGrow: 1 }}>
         <NavItem
           path="dashboard"
           icon={<DashboardIcon />}
           navName="Dashboard"
+          isCollapsed={collapsed}
         />
         <NavItem
           path="transactions"
           icon={<PaidIcon />}
           navName="Transactions"
+          isCollapsed={collapsed}
         />
         <NavItem
-          path="shared-groups"
+          path="groups"
           icon={<GroupsIcon />}
-          navName="Shared Groups"
+          navName="Groups"
+          isCollapsed={collapsed}
         />
-        <NavItem
-          path="money-plans"
-          icon={<FlagCircleIcon />}
-          navName="Money Plans"
-        />
-        <NavItem path="account" icon={<PersonIcon />} navName="Account" />
-        <NavItem path="settings" icon={<Settings />} navName="Settings" />
-        <ListItem disablePadding>
-          <ListItemButton onClick={handleLogutDialogOpen}>
-            <Stack direction="row" spacing={1} alignItems="center">
-              <Logout />
-              <Typography fontWeight={600}>Logout</Typography>
-            </Stack>
-          </ListItemButton>
-        </ListItem>
       </List>
-      <UserDetailsBox />
-
-      <SlideupDialog
-        title="Logout"
-        message="Are you sure you want to logout?"
-        open={logutDialogOpen}
-        handleClose={handleLogutDialogClose}
+      <IconButton
+        onClick={handleToggle}
+        sx={{
+          m: 1,
+          alignSelf: collapsed ? "center" : "flex-end",
+        }}
       >
-        <DialogActions>
-          <Button color="inherit" onClick={handleLogutDialogClose}>
-            No
-          </Button>
-          <Button color="inherit" onClick={handleUserLogout}>
-            Yes
-          </Button>
-        </DialogActions>
-      </SlideupDialog>
-    </Drawer>
+        {collapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
+      </IconButton>
+    </StyledDrawer>
   );
 };
 

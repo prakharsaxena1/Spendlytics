@@ -1,0 +1,68 @@
+import React from "react";
+import { UserApis, type InvitationType } from "../../../redux/services/user";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Divider from "@mui/material/Divider";
+import Paper from "@mui/material/Paper";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
+import { CircularProgress } from "@mui/material";
+
+type InvitaionBoxProps = {
+  invitationObj: InvitationType;
+};
+
+const InvitaionBox: React.FC<InvitaionBoxProps> = ({ invitationObj }) => {
+  const { inviteBy, group, _id } = invitationObj;
+  const { firstname, lastname, username } = inviteBy;
+  const [notificationTrigger, { isLoading }] =
+    UserApis.useInviteActionMutation();
+  const handleInvite = (status: "accept" | "reject") => {
+    notificationTrigger({
+      status,
+      groupId: group._id,
+      invitationId: _id,
+    });
+  };
+  return (
+    <Box component={Paper}>
+      <Typography p={1} variant="h5">
+        You are invited!
+      </Typography>
+      <Divider />
+      <Box sx={{ p: 1 }}>
+        <Typography variant="body2">
+          {`${firstname} ${lastname} (@${username}) has invited you to join "${group.groupName}"`}
+        </Typography>
+        <Stack
+          direction="row"
+          marginTop={2}
+          spacing={1}
+          justifyContent="flex-end"
+        >
+          {isLoading && <CircularProgress />}
+          <Button
+            size="small"
+            variant="contained"
+            color="success"
+            disabled={isLoading}
+            onClick={() => handleInvite("accept")}
+          >
+            Accept
+          </Button>
+          <Button
+            size="small"
+            variant="contained"
+            color="error"
+            disabled={isLoading}
+            onClick={() => handleInvite("reject")}
+          >
+            Reject
+          </Button>
+        </Stack>
+      </Box>
+    </Box>
+  );
+};
+
+export default InvitaionBox;

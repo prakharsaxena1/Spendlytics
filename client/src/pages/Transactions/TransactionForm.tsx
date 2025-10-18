@@ -18,10 +18,7 @@ import TransactionApis from "../../redux/services/transaction/api";
 import { useAppSelector } from "../../redux/hooks";
 import { toast } from "react-toastify";
 import { CurrentUserSelector } from "../../redux/slices/auth/selector";
-
-const CategoryOptions: TransactionItemType['category'][] = ["savings", "debt", "investments", "needs", "wants"];
-
-const TODAY = dayjs().toISOString();
+import { CategoryOptions, TODAY } from "../../constants/constants";
 
 type TransactionFormProps = {
   handleClose: () => void;
@@ -58,7 +55,6 @@ const TransactionForm: React.FC<TransactionFormProps> = ({
       amount: Number(amount),
       transactionDate: transactionDate,
       note,
-      userId: user._id,
     };
 
     if (transaction !== undefined) {

@@ -7,14 +7,19 @@ import type {
   DeleteTransactionRequest,
   UpdateTransactionResponse,
   UpdateTransactionRequest,
+  TransactionListRequest,
 } from "./types";
 
 export const TransactionApis = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    transactionList: build.query<TransactionListResponse, null>({
-      query: () => ({
-        url: `/transaction`,
+    transactionList: build.query<
+      TransactionListResponse,
+      TransactionListRequest
+    >({
+      query: (params) => ({
+        url: "/transaction",
         method: "GET",
+        params,
       }),
       keepUnusedDataFor: 120,
       providesTags: ["transactionsList"],

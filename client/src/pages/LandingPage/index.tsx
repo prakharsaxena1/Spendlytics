@@ -5,10 +5,20 @@ import Hero from "./sections/Hero";
 import Howitworks from "./sections/Howitworks";
 import Features from "./sections/Features";
 import Footer from "./sections/Footer";
+import { AuthApis } from "../../redux/services/auth";
+import Loader from "../../components/common/Loader";
 
 const LandingPage: React.FC = () => {
   const featuresRef = useRef(null);
   const howItWorksRef = useRef(null);
+  const { isLoading } = AuthApis.useGetCurrentUserQuery();
+  if (isLoading) {
+    return (
+      <Box sx={{ inset: 0, position: "absolute" }}>
+        <Loader />
+      </Box>
+    );
+  }
 
   return (
     <Box>

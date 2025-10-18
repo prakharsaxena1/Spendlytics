@@ -11,6 +11,13 @@ export type UserType = {
   avatar: string;
   level: number;
   hasProvidedStartingBalance: boolean;
+  appearanceSettings: {
+    theme: string;
+    accentColor: string;
+    fontFamily: string;
+    animationsEnabled: boolean;
+    iconPack: "rounded" | "square";
+  };
 };
 
 export interface IUser extends UserType, Document {
@@ -28,6 +35,13 @@ const UserSchema = new Schema<IUser>(
     avatar: { type: String, default: "" },
     level: { type: Number, default: 1 },
     hasProvidedStartingBalance: { type: Boolean, default: false },
+    appearanceSettings: {
+      theme: { type: String, default: "light" },
+      accentColor: { type: String, default: "blue" },
+      fontFamily: { type: String, default: "Roboto" },
+      animationsEnabled: { type: Boolean, default: true },
+      iconPack: { type: String, default: "rounded" },
+    },
   },
   { timestamps: true }
 );

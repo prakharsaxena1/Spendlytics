@@ -1,40 +1,53 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Stack from "@mui/material/Stack";
-import Box from "@mui/material/Box";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
+import ProtectedRoute from "../Auth/ProtectedRoute";
+import NavTopbar from "./NavTopbar";
+import CssBaseline from "@mui/material/CssBaseline";
+import { ThemeProvider } from "@mui/material";
+import { getDesignTokens } from "./themes/default";
 import { useAppSelector } from "../../redux/hooks";
-import { IsLoadingSelector } from "../../redux/slices/auth/selector";
-import Loader from "../common/Loader";
-// import CssBaseline from "@mui/material/CssBaseline";
-// import { ThemeProvider } from "@mui/material";
-// import theme from "./themes/default";
+import { AppConfigSelector } from "../../redux/slices/appConfig/selector";
+import { Flip, ToastContainer } from "react-toastify";
 
 const Layout: React.FC = () => {
-  const isLoading = useAppSelector(IsLoadingSelector);
   return (
-    <Box sx={{ height: "100vh" }}>
-      <Stack direction="row" height="100%">
-        <Sidebar />
-        <Stack direction="column" flexGrow={1} sx={{ overflow: "hidden" }}>
-          {isLoading ? (
-            <Box sx={{ position: "absolute", inset: 0 }}>
-              <Loader />
-            </Box>
-          ) : (
+    <ProtectedRoute>
+      <Stack direction="column" sx={{ height: "100vh" }}>
+        <NavTopbar />
+        <Stack direction="row" flexGrow={1} sx={{ overflow: "hidden" }}>
+          <Sidebar />
+          <Stack flexGrow={1} sx={{ overflow: "auto" }}>
             <Outlet />
-          )}
+          </Stack>
         </Stack>
+        <ToastContainer
+          position="bottom-right"
+          autoClose={5000}
+          hideProgressBar
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="colored"
+          transition={Flip}
+        />
       </Stack>
-    </Box>
+    </ProtectedRoute>
   );
 };
 
-// const ThemedLayout: React.FC = () => (
-//   <ThemeProvider theme={theme}>
-//     <CssBaseline />
-//     <Layout />
-//   </ThemeProvider>
-// );
-
-export default Layout;
+const ThemedLayout: React.FC = () => {
+  const appConfig = useAppSelector(AppConfigSelector);
+  const newTheme = useMemo(() => getDesignTokens(appConfig), [appConfig]);
+  return (
+    <ThemeProvider theme={newTheme}>
+      <CssBaseline />
+      <Layout />
+    </ThemeProvider>
+  );
+};
+export default ThemedLayout;

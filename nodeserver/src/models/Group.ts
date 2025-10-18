@@ -1,29 +1,25 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface ISharedGroup extends Document {
+export interface IGroup extends Document {
   groupName: string;
   members: mongoose.Types.ObjectId[];
   createdBy: mongoose.Types.ObjectId;
   totalExpense: number;
-  isSettled: boolean;
-  lastSettledAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const SharedGroupSchema = new Schema<ISharedGroup>(
+const GroupSchema = new Schema<IGroup>(
   {
     groupName: { type: String, required: true },
     members: [{ type: Schema.Types.ObjectId, ref: "User", required: true }],
     createdBy: { type: Schema.Types.ObjectId, ref: "User", required: true },
-    totalExpense: { type: Number, default: 0 },
-    isSettled: { type: Boolean, default: false },
-    lastSettledAt: { type: Date, default: null },
+    totalExpense: { type: Number, required: true, default: 0 },
   },
   { timestamps: true }
 );
 
-export const SharedGroup = mongoose.model<ISharedGroup>(
-  "SharedGroup",
-  SharedGroupSchema
+export const Group = mongoose.model<IGroup>(
+  "Group",
+  GroupSchema
 );

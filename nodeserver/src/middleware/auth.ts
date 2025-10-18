@@ -15,6 +15,7 @@ export const authenticate = async (
   const token = req.cookies.jwt;
   if (!token) {
     res.status(401).json({ error: "Unauthorized - No token provided" });
+    return;
   }
 
   try {
@@ -22,15 +23,18 @@ export const authenticate = async (
     const user = await User.findById(decoded.id).select("-password");
     if (!user) {
       res.status(401).json({ error: "Unauthorized - User not found" });
+      return;
     }
     req.user = user;
     next();
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       res.status(401).json({ error: "Unauthorized - Token expired" });
+      return;
     }
     if (error instanceof jwt.JsonWebTokenError) {
       res.status(401).json({ error: "Unauthorized - Invalid token" });
+      return;
     }
     next(error);
   }

@@ -15,7 +15,7 @@ export const registerUser = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
     await Promise.all([
       body("firstname")
@@ -36,13 +36,16 @@ export const registerUser = async (
       res.status(400).json({ message: "Invalid request", user: null });
       return;
     }
+
     const { firstname, lastname, username, email, password } = req.body;
-    const existingUser = await User.findOne({
-      $or: [{ email }, { username }],
-    });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
 
     if (existingUser) {
-      res.status(400).json({ message: "Email already registered", user: null });
+      res.status(400).json({
+        success: false,
+        message: "Email already registered",
+        user: null,
+      });
       return;
     }
     // Create user
@@ -59,7 +62,6 @@ export const registerUser = async (
     });
     // Generate token
     const token = generateToken(newUser);
-
     // Set HTTP-only cookie
     res.cookie("jwt", token, {
       httpOnly: true,
@@ -68,6 +70,7 @@ export const registerUser = async (
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
     res.status(201).json({
+      success: true,
       message: "User registered successfully",
       user: sanitizeUser(newUser),
     });
@@ -81,42 +84,41 @@ export const loginUser = async (
   req: Request,
   res: Response,
   next: NextFunction
-): Promise<void> => {
+) => {
   try {
     await Promise.all([
       body("email").isEmail().withMessage("Invalid email").run(req),
       body("password").isLength({ min: 8 }).run(req),
     ]);
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      res.status(400).json({ message: "Invalid request", user: null });
+      res
+        .status(400)
+        .json({ success: false, message: "Invalid request", user: null });
       return;
     }
     const { email, password } = req.body;
     const existingUser = await User.findOne({ email }).select("+password");
-
     if (!existingUser) {
       res.status(401).json({
+        success: false,
         message: "Invalid credentials",
         user: null,
       });
       return;
     }
-
     // Verify password
     const isMatch = await existingUser.matchPassword(password);
     if (!isMatch) {
       res.status(401).json({
+        success: false,
         message: "Invalid credentials",
         user: null,
       });
       return;
     }
-
     // Generate token
     const token = generateToken(existingUser);
-
     // Set HTTP-only cookie
     res.cookie("jwt", token, {
       httpOnly: true,
@@ -125,6 +127,7 @@ export const loginUser = async (
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
     res.status(200).json({
+      success: true,
       message: "User logged in successfully",
       user: sanitizeUser(existingUser),
     });
@@ -134,14 +137,19 @@ export const loginUser = async (
   }
 };
 
-export const getCurrentUser = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
+export const getCurrentUser = (
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     if (!req.user) {
-      res.status(401).json({ message: "Not authenticated", user: null });
+      res
+        .status(401)
+        .json({ success: false, message: "Not authenticated", user: null });
       return;
     }
-    res.status(200).json({ user: sanitizeUser(req.user) });
-    return;
+    res.status(200).json({ success: true, user: sanitizeUser(req.user) });
   } catch (error) {
     console.error("error getting user details:", error);
     next(error);
@@ -150,5 +158,5 @@ export const getCurrentUser = (req: AuthenticatedRequest, res: Response, next: N
 
 export const logoutUser = (req: Request, res: Response) => {
   res.clearCookie("jwt");
-  res.status(200).json({ message: "Logout successful" });
+  res.status(200).json({ success: true, message: "Logout successful" });
 };
