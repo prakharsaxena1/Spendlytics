@@ -5,11 +5,14 @@ import { RouterProvider } from 'react-router-dom'
 import router from './routes'
 import { Provider } from 'react-redux'
 import { store } from './redux/store'
+import enableMocking from './mocks/enableMocking'
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <Provider store={store}>
-      <RouterProvider router={router} />
-    </Provider>
-  </StrictMode>,
-)
+enableMocking().then(() => {
+  createRoot(document.getElementById('root')!).render(
+    <StrictMode>
+      <Provider store={store}>
+        <RouterProvider router={router} />
+      </Provider>
+    </StrictMode>,
+  )
+});
