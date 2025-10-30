@@ -9,11 +9,15 @@ import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import { useNavigate } from "react-router-dom";
 import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
-import { useAppSelector } from "../../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import LogoutIcon from '@mui/icons-material/Logout';
-import { Divider } from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { Button, DialogActions, Divider } from "@mui/material";
 import { IsAuthenticatedSelector } from "../../redux/slices/auth/selector";
+import SlideupDialog from "../../components/common/SlideupDialog";
+import { AuthApis } from "../../redux/services/auth";
+import { logout } from "../../redux/slices/auth/slice";
+import { changeTheme } from "../../redux/slices/appConfig/slice";
 
 type DrawerListItemProps = {
   icon: React.JSX.Element;
@@ -51,8 +55,12 @@ const SideDrawer: React.FC<SideDrawerProps> = ({
   featuresRef,
   howItWorksRef,
 }) => {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const isAuthenticated = useAppSelector(IsAuthenticatedSelector);
+  const [logoutDialogOpen, setLogoutDialogOpen] = React.useState(false);
+
+  const [logoutTrigger] = AuthApis.useLogoutMutation();
 
   const goToAccountLogin = () => {
     navigate("/account?tab=login");
@@ -65,6 +73,25 @@ const SideDrawer: React.FC<SideDrawerProps> = ({
   };
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     ref.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleLogoutDialogOpen = () => {
+    setLogoutDialogOpen(true);
+  };
+
+  const handleLogoutDialogClose = () => {
+    setLogoutDialogOpen(false);
+  };
+
+  const handleUserLogout = () => {
+    logoutTrigger(null)
+      .unwrap()
+      .then(() => {
+        dispatch(logout());
+        dispatch(changeTheme("light"));
+        navigate("/");
+      });
+    handleClose();
   };
   return (
     <Drawer open={open} onClose={handleClose}>
@@ -93,7 +120,7 @@ const SideDrawer: React.FC<SideDrawerProps> = ({
             <DrawerListItem
               label="Logout"
               icon={<LogoutIcon />}
-              action={handleClose}
+              action={handleLogoutDialogOpen}
             />
           </>
         )}
@@ -115,6 +142,21 @@ const SideDrawer: React.FC<SideDrawerProps> = ({
           }}
         />
       </List>
+      <SlideupDialog
+        title="Logout"
+        message="Are you sure you want to logout?"
+        open={logoutDialogOpen}
+        handleClose={handleLogoutDialogClose}
+      >
+        <DialogActions>
+          <Button color="inherit" onClick={handleLogoutDialogClose}>
+            No
+          </Button>
+          <Button color="inherit" onClick={handleUserLogout}>
+            Yes
+          </Button>
+        </DialogActions>
+      </SlideupDialog>
     </Drawer>
   );
 };
